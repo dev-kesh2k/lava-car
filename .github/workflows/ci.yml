@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: 22
       - run: npm ci --ignore-scripts
+      # O teste do WhatsApp importa o util.js, que usa o cliente gerado do Prisma.
+      - run: npx prisma generate
       - name: Sintaxe
         run: npm run build
       - name: Testes das regras
