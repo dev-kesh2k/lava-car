@@ -4,3 +4,6 @@
 ### Fase 1 — Fundação
 - Schema multi-tenant com RLS: lojas, perfis, veículos, serviços com preço por porte, OS, vistoria, fidelidade, caixa e push.
 - Regras no banco: agendamento com checagem de boxes, OS avulsa, fluxo de status, selos de fidelidade e entrada automática no caixa.
+
+### Fase 2 — Cliente
+- Login por WhatsApp (OTP), e-mail ou Google; garagem virtual; wizard de agendamento em 4 passos; acompanhamento ao vivo; cartão fidelidade.
