@@ -19,3 +19,9 @@ Modelar o banco inteiro antes da interface (`supabase/migrations`).
 - Wizard: 1) veículo (filtra preços pelo porte) 2) serviço principal + adicionais 3) data/hora — **disponibilidade = duração do serviço × boxes livres** 4) resumo e pagamento (no local ou Pix antecipado).
 - Tracker ao vivo: Agendado ➔ No pátio ➔ Lavando ➔ Finalizando ➔ Pronto para retirada.
 - Cartão fidelidade digital em selos.
+
+## Fase 3 — Painel operacional (pátio e balcão)
+- Kanban do pátio (Aguardando | Em lavagem | Acabamento | Pronto) com arrastar e botões grandes de avanço.
+- OS avulsa (walk-in): placa, porte, serviço e direto para a fila.
+- Vistoria de entrada: até 4 fotos pela câmera + marcação de avarias.
+- Botão do WhatsApp no carro "Pronto": "Olá [Nome], seu [Modelo] placa [Placa] já está limpo e pronto para retirada!"
