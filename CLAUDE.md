@@ -36,3 +36,12 @@ Modelar o banco inteiro antes da interface (`supabase/migrations`).
 - Pix automático: webhook muda a OS para PAGO.
 - Web Push quando o carro fica Pronto.
 - PWA: manifest, service worker, tela cheia e carregamento rápido.
+
+## Roteiro de execução (prompts)
+| Ordem | Prompt |
+|---|---|
+| 1º | "Atue como um Arquiteto de Software Sênior. Com base nas especificações da Fase 1, gere o schema SQL completo para PostgreSQL/Supabase, incluindo chaves estrangeiras, índices, triggers de atualização de timestamp e políticas de RLS para isolamento Multi-Tenant." |
+| 2º | "Inicialize a estrutura de pastas de um projeto React + TypeScript + Vite + Tailwind + Shadcn/UI. Configure o cliente do Supabase, os tipos TypeScript gerados a partir do banco de dados e o sistema de autenticação com controle de rotas por perfil (Admin, Operador, Cliente)." |
+| 3º | "Desenvolva a Fase 2 (Módulo do Cliente), começando pelo cadastro de veículos e pelo algoritmo de verificação de horários disponíveis (evitando conflito de agendamentos baseado na capacidade de boxes simultâneos da loja)." |
+| 4º | "Desenvolva a Fase 3 (Painel Operacional). Crie o quadro Kanban do pátio usando Supabase Realtime para que mudanças de status reflitam instantaneamente na tela do cliente, além do formulário de vistoria com upload de fotos para o Supabase Storage." |
+| 5º | "Desenvolva a Fase 4 (Financeiro e Comissões) e configure o manifest.json e service worker para transformar a aplicação em um PWA instalável." |
