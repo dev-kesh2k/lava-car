@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Bell, ChevronLeft, ChevronRight, MessageSquareHeart, Settings, Trophy } from 'lucide-react';
 import { useApi } from '../../api';
 import { useConfig } from '../../config';
-import { Empty, ErrorBox, Loading } from '../../ui';
+import { Empty, ErrorBox, Loading, PageHead } from '../../ui';
 import { brl, dayNum, fmtDate, fmtLong, MONTHS } from '../../util';
 
 interface Dash {
@@ -31,10 +31,13 @@ const shiftMonth = (month: string, n: number) => {
 
 function Stat({ label, value, note, accent }: { label: string; value: string; note: string; accent?: boolean }) {
   return (
-    <div className={`flex min-w-0 flex-col rounded-[20px] border p-5 ${accent ? 'border-accent bg-accent text-bg' : 'border-line bg-surface'}`}>
-      <span className={`text-base ${accent ? 'text-bg' : 'text-soft'}`}>{label}</span>
-      <span className="mt-1 break-words font-display text-[clamp(1.9rem,9vw,3rem)] font-extrabold leading-none">{value}</span>
-      <span className={`mt-2 text-sm ${accent ? 'text-bg' : 'text-muted'}`}>{note}</span>
+    <div
+      className={`flex min-w-0 flex-col rounded-card p-4 min-[380px]:p-5 ${accent ? 'text-white shadow-[0_12px_28px_-14px_rgba(10,108,214,0.7)]' : 'card'}`}
+      style={accent ? { background: 'radial-gradient(120% 90% at 100% 0%, rgba(120,220,255,0.4), transparent 55%), linear-gradient(150deg, #0B5DB8, #0A6CD6 50%, #1FA2E6)' } : undefined}
+    >
+      <span className={`text-footnote font-medium ${accent ? 'text-white/85' : 'text-muted'}`}>{label}</span>
+      <span className="mt-1.5 break-words text-[clamp(22px,7vw,30px)] font-bold leading-none tracking-[-0.5px] tabular-nums">{value}</span>
+      <span className={`mt-2 text-footnote ${accent ? 'text-white/85' : 'text-muted'}`}>{note}</span>
     </div>
   );
 }
@@ -53,11 +56,11 @@ function DayBars({ days, today }: { days: Dash['days']; today: string }) {
             <p className="text-sm text-muted">
               {fmtDate(f.day)} · {f.cars} {f.cars === 1 ? 'carro' : 'carros'}
             </p>
-            <p className="text-xl font-bold">{brl(f.revenueCents)}</p>
+            <p className="text-title2 font-bold tabular-nums">{brl(f.revenueCents)}</p>
           </>
         )}
       </div>
-      <div className="flex h-[140px] items-end gap-[2px] border-b border-line" role="list" aria-label="Faturamento por dia">
+      <div className="flex h-[140px] items-end gap-[2px] hairline-b" role="list" aria-label="Faturamento por dia">
         {days.map((d, i) => (
           <button
             key={d.day}
@@ -70,7 +73,7 @@ function DayBars({ days, today }: { days: Dash['days']; today: string }) {
             className="relative block h-full min-w-0 flex-1"
           >
             <span
-              className={`absolute inset-x-0 bottom-0 mx-auto max-w-[28px] rounded-t-[3px] ${d.day === today ? 'bg-accent' : hover === i ? 'bg-soft' : 'bg-line2'}`}
+              className={`absolute inset-x-0 bottom-0 mx-auto max-w-[28px] rounded-t-[4px] transition-colors duration-200 ${d.day === today ? 'bg-brand' : hover === i ? 'bg-accent/60' : 'bg-accent/25'}`}
               style={{ height: d.revenueCents ? Math.max(3, Math.round((d.revenueCents / max) * 130)) : 0 }}
             />
           </button>
@@ -101,26 +104,26 @@ export default function Dashboard() {
 
   return (
     <div>
-      <header className="mb-6">
-        <div className="flex items-center justify-between gap-3">
-          <p className="min-w-0 truncate text-sm font-bold uppercase tracking-[0.12em] text-muted">Painel do dono</p>
-          <div className="flex shrink-0 gap-2 [&>a]:h-11 [&>a]:w-11">
-            <Link to="/admin/notificacoes" className="icon-btn" aria-label={data.unread ? `Notificações (${data.unread} novas)` : 'Notificações'}>
-              <Bell size={20} />
-              {data.unread > 0 && <span className="absolute right-2 top-2 h-3 w-3 rounded-full border-2 border-surface bg-accent" />}
+      <PageHead
+        eyebrow="Painel do dono"
+        title={data.studioName}
+        subtitle={fmtLong(data.today)}
+        toolbar={
+          <>
+            <Link to="/admin/notificacoes" className="bar-btn" aria-label={data.unread ? `Notificações (${data.unread} novas)` : 'Notificações'}>
+              <Bell size={23} strokeWidth={1.75} />
+              {data.unread > 0 && <span className="badge">{data.unread}</span>}
             </Link>
-            <Link to="/admin/feedback" className="icon-btn" aria-label={data.feedbackUnread ? `Feedback (${data.feedbackUnread} novos)` : 'Feedback dos clientes'}>
-              <MessageSquareHeart size={20} />
-              {data.feedbackUnread > 0 && <span className="absolute right-2 top-2 h-3 w-3 rounded-full border-2 border-surface bg-accent" />}
+            <Link to="/admin/feedback" className="bar-btn" aria-label={data.feedbackUnread ? `Feedback (${data.feedbackUnread} novos)` : 'Feedback dos clientes'}>
+              <MessageSquareHeart size={23} strokeWidth={1.75} />
+              {data.feedbackUnread > 0 && <span className="badge">{data.feedbackUnread}</span>}
             </Link>
-            <Link to="/admin/config" className="icon-btn md:hidden" aria-label="Configurações">
-              <Settings size={20} />
+            <Link to="/admin/config" className="bar-btn md:hidden" aria-label="Configurações">
+              <Settings size={23} strokeWidth={1.75} />
             </Link>
-          </div>
-        </div>
-        <h1 className="h1 mt-2">{data.studioName}</h1>
-        <p className="mt-3 text-base text-muted">{fmtLong(data.today)}</p>
-      </header>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Stat accent label="Faturamento hoje" value={brl(data.revenueToday)} note={`${data.washedToday} ${data.washedToday === 1 ? 'carro lavado' : 'carros lavados'}`} />
@@ -130,13 +133,13 @@ export default function Dashboard() {
       </div>
 
       <div className="mb-4 mt-8 flex items-center justify-between gap-2">
-        <button className="icon-btn h-11 w-11" aria-label="Mês anterior" onClick={() => setMonth(shiftMonth(data.month, -1))}>
+        <button className="icon-btn" aria-label="Mês anterior" onClick={() => setMonth(shiftMonth(data.month, -1))}>
           <ChevronLeft size={20} />
         </button>
-        <p className="font-display text-xl font-bold uppercase">
+        <p className="text-title3 font-semibold first-letter:uppercase">
           {MONTHS[m - 1]} {y}
         </p>
-        <button className="icon-btn h-11 w-11 disabled:opacity-30" aria-label="Próximo mês" disabled={isCurrent} onClick={() => setMonth(shiftMonth(data.month, 1))}>
+        <button className="icon-btn" aria-label="Próximo mês" disabled={isCurrent} onClick={() => setMonth(shiftMonth(data.month, 1))}>
           <ChevronRight size={20} />
         </button>
       </div>
@@ -158,8 +161,8 @@ export default function Dashboard() {
                     {t.qty}× · {brl(t.revenueCents)}
                   </span>
                 </div>
-                <div className="mt-1.5 h-2.5 rounded-full bg-surface2">
-                  <div className="h-full rounded-full bg-accent" style={{ width: `${Math.round((t.qty / maxQty) * 100)}%` }} />
+                <div className="mt-1.5 h-2 rounded-full bg-surface2">
+                  <div className="h-full rounded-full bg-brand" style={{ width: `${Math.round((t.qty / maxQty) * 100)}%` }} />
                 </div>
               </div>
             ))}

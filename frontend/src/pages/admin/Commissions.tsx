@@ -52,13 +52,13 @@ export default function Commissions() {
               ['Valor', brl(data.totals.grossCents)],
               ['Comissões', brl(data.totals.commissionCents)],
             ].map(([k, v], i) => (
-              <div key={k} className={`min-w-0 rounded-[20px] p-4 ${i === 2 ? 'bg-accent text-bg' : 'card'}`}>
+              <div key={k} className={`min-w-0 rounded-card p-4 ${i === 2 ? 'bg-brand text-onaccent' : 'card'}`}>
                 <p className={`text-sm ${i === 2 ? '' : 'text-soft'}`}>{k}</p>
-                <p className="break-words font-display text-[clamp(1.2rem,5.5vw,2rem)] font-extrabold leading-tight">{v}</p>
+                <p className="break-words text-[clamp(17px,5vw,24px)] font-bold leading-tight tabular-nums">{v}</p>
               </div>
             ))}
           </div>
-          {data.unassigned > 0 && <p className="mt-3 rounded-2xl bg-warnbg p-4 text-sm text-warn">{data.unassigned} OS pronta(s) sem responsável na semana: não entram em nenhuma comissão.</p>}
+          {data.unassigned > 0 && <p className="mt-3 rounded-cell bg-warnbg p-4 text-sm text-warn">{data.unassigned} OS pronta(s) sem responsável na semana: não entram em nenhuma comissão.</p>}
           {data.rows.length === 0 && (
             <div className="mt-5">
               <Empty icon={BadgePercent} title="Ninguém na equipe" text="Cadastre a equipe e o % de comissão em Equipe e boxes." />
@@ -68,8 +68,8 @@ export default function Commissions() {
             {data.rows.map((r) => (
               <div key={r.id} className="card p-5">
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="min-w-0 truncate text-lg font-bold">{r.name}</p>
-                  <p className="shrink-0 font-display text-2xl font-extrabold text-accent">{brl(r.commissionCents)}</p>
+                  <p className="min-w-0 truncate text-body font-semibold">{r.name}</p>
+                  <p className="shrink-0 text-title3 font-bold tabular-nums text-ink">{brl(r.commissionCents)}</p>
                 </div>
                 <p className="mt-1 text-sm text-muted">
                   {r.count} {r.count === 1 ? 'lavagem' : 'lavagens'} · {brl(r.grossCents)} · {r.commissionPct}%

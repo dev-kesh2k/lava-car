@@ -114,7 +114,7 @@ function ScheduleEditor({ value, onChange }: { value: DaySchedule[]; onChange: (
 
 function Toggle({ label, hint, on, set }: { label: string; hint?: string; on: boolean; set: (v: boolean) => void }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl bg-surface2 px-4 py-3">
+    <div className="flex items-center justify-between gap-3 rounded-cell bg-surface2 px-4 py-3">
       <span className="min-w-0">
         <span className="block">{label}</span>
         {hint && <span className="block text-sm text-muted">{hint}</span>}
@@ -126,7 +126,7 @@ function Toggle({ label, hint, on, set }: { label: string; hint?: string; on: bo
 
 /** Situação da ponte de WhatsApp do servidor (GET /health da bridge). */
 function BridgeBadge({ status, loading, onRetry }: { status: BridgeStatus | null; loading: boolean; onRetry: () => void }) {
-  if (loading) return <p className="rounded-2xl bg-surface2 px-4 py-3 text-sm text-muted">Verificando a ponte do WhatsApp…</p>;
+  if (loading) return <p className="rounded-cell bg-surface2 px-4 py-3 text-sm text-muted">Verificando a ponte do WhatsApp…</p>;
   const ok = !!status?.connected;
   const text = !status
     ? 'Não consegui verificar a ponte.'
@@ -138,7 +138,7 @@ function BridgeBadge({ status, loading, onRetry }: { status: BridgeStatus | null
           ? 'Ponte conectada: o WhatsApp do servidor está pronto para enviar.'
           : 'Ponte no ar, mas o WhatsApp do servidor está desconectado (precisa ler o QR Code no Hub).';
   return (
-    <div className={`flex items-start gap-2 rounded-2xl px-4 py-3 text-sm ${ok ? 'bg-okbg text-ok' : 'bg-warnbg text-warn'}`}>
+    <div className={`flex items-start gap-2 rounded-cell px-4 py-3 text-sm ${ok ? 'bg-okbg text-ok' : 'bg-warnbg text-warn'}`}>
       {ok ? <CheckCircle2 size={18} className="mt-0.5 shrink-0" /> : <XCircle size={18} className="mt-0.5 shrink-0" />}
       <span className="min-w-0 flex-1 break-words">{text}</span>
       <button type="button" className="shrink-0 font-bold underline" onClick={onRetry}>
@@ -245,7 +245,7 @@ export default function Settings() {
         <Section title="Loja">
           <Field label="Logo do app" hint="Aparece no topo do app e na tela de login da equipe.">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-surface2">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-cell bg-surface2">
                 {s.logoVersion ? <img src={`${API_BASE}/logo?v=${s.logoVersion}`} alt="Logo" className="h-full w-full object-contain" /> : <span className="text-sm text-muted">Padrão</span>}
               </div>
               <label className="btn-secondary cursor-pointer">
@@ -284,7 +284,7 @@ export default function Settings() {
               </select>
             </Field>
           </div>
-          <p className="rounded-2xl bg-surface2 p-4 text-sm text-muted">Pagamento: por enquanto só no local (sem sinal). O Pix antecipado fica desligado até integrarmos um gateway de pagamento.</p>
+          <p className="rounded-cell bg-surface2 p-4 text-sm text-muted">Pagamento: por enquanto só no local (sem sinal). O Pix antecipado fica desligado até integrarmos um gateway de pagamento.</p>
           <Field label="Telefone">
             <input className="input" type="tel" inputMode="tel" value={f.phone} onChange={(e) => set('phone', e.target.value)} />
           </Field>
@@ -401,7 +401,7 @@ export default function Settings() {
         </div>
       </section>
 
-      <button onClick={signOut} className="card mt-6 flex min-h-[64px] w-full items-center gap-4 px-5 text-lg text-accent">
+      <button onClick={signOut} className="list cell mt-6 justify-center text-body text-danger active:bg-surface2">
         <LogOut size={22} /> Sair
       </button>
     </div>

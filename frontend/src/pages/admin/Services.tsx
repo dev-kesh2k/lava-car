@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Clock, Plus } from 'lucide-react';
 import { api, useApi, type Service, type Size } from '../../api';
-import { ErrorBox, Field, FormError, Loading, PageHead, ServiceIcon, SERVICE_ICON_KEYS, Sheet, Switch, toast } from '../../ui';
+import { CarSilhouette, ErrorBox, Field, FormError, Loading, PageHead, ServiceIcon, SERVICE_ICON_KEYS, Sheet, Switch, toast } from '../../ui';
 import { brl, duration, moneyInput, parseMoney, SIZE_INFO, SIZES } from '../../util';
 
 type Form = { id: string; name: string; description: string; kind: 'main' | 'addon'; durationMin: string; icon: string; active: boolean; prices: Record<Size, string> };
@@ -89,29 +89,34 @@ export default function Services() {
       />
       {groups.map(([title, list]) => (
         <section key={title} className="mb-8">
-          <h2 className="h2 mb-3">{title}</h2>
+          <h2 className="h2 mb-3 px-1">
+            {title} <span className="text-subhead font-medium text-muted">· {list.length}</span>
+          </h2>
           <div className="grid gap-3 xl:grid-cols-2">
             {list.map((s) => (
-              <div key={s.id} className={`card p-4 ${s.active ? '' : 'opacity-60'}`}>
-                <div className="flex items-center gap-3">
+              <div key={s.id} className={`card overflow-hidden transition-opacity duration-200 ${s.active ? '' : 'opacity-55'}`}>
+                <div className="flex items-center gap-3 p-4 pb-3">
                   <ServiceIcon icon={s.icon} active={s.active} size="sm" />
                   <button className="min-w-0 flex-1 text-left" onClick={() => edit(s)}>
-                    <p className="truncate text-lg font-bold">{s.name}</p>
-                    <p className="text-sm text-muted">{duration(s.durationMin)} · toque para editar</p>
+                    <p className="truncate text-body font-semibold">{s.name}</p>
+                    <p className="flex items-center gap-1 text-footnote text-muted">
+                      <Clock size={13} /> {duration(s.durationMin)} <span className="text-accent">· Editar</span>
+                    </p>
                   </button>
                   <Switch label={`${s.name} ativo`} checked={s.active} onChange={(v) => toggle(s, v)} />
                 </div>
-                <div className="mt-3 grid grid-cols-4 gap-1.5">
-                  {SIZES.map((size) => {
+                <button onClick={() => edit(s)} className="grid w-full grid-cols-4 bg-bg/60 text-center hairline-t" aria-label={`Preços de ${s.name}`}>
+                  {SIZES.map((size, i) => {
                     const p = s.prices.find((x) => x.size === size);
                     return (
-                      <div key={size} className="min-w-0 rounded-xl bg-surface2 px-1 py-2 text-center">
-                        <p className="truncate text-xs text-muted">{SIZE_INFO[size].short}</p>
-                        <p className={`truncate text-[clamp(12px,3.6vw,15px)] font-bold ${p ? '' : 'text-dis'}`}>{p ? brl(p.priceCents) : '—'}</p>
+                      <div key={size} className={`min-w-0 px-1 py-2.5 ${i ? 'border-l-[0.5px] border-line/60' : ''}`}>
+                        <CarSilhouette size={size} className={`mx-auto h-4 w-8 ${p ? 'text-muted' : 'text-dis'}`} />
+                        <p className="mt-1 truncate text-caption text-muted">{SIZE_INFO[size].short}</p>
+                        <p className={`truncate text-[clamp(13px,3.8vw,15px)] font-semibold tabular-nums ${p ? 'text-ink' : 'text-dis'}`}>{p ? brl(p.priceCents) : '—'}</p>
                       </div>
                     );
                   })}
-                </div>
+                </button>
               </div>
             ))}
           </div>
@@ -121,9 +126,9 @@ export default function Services() {
       <Sheet open={!!f} onClose={() => setF(null)} title={f?.id ? 'Editar serviço' : 'Novo serviço'}>
         {f && (
           <div className="grid gap-4">
-            <div className="grid grid-cols-2 gap-1 rounded-2xl border border-line bg-surface2 p-1">
+            <div className="segmented grid-cols-2">
               {(['main', 'addon'] as const).map((k) => (
-                <button key={k} onClick={() => setF({ ...f, kind: k })} className={`min-h-[44px] rounded-xl ${f.kind === k ? 'bg-accent font-bold text-bg' : 'text-soft'}`}>
+                <button key={k} onClick={() => setF({ ...f, kind: k })} className={`segment ${f.kind === k ? 'segment-on' : ''}`}>
                   {k === 'main' ? 'Principal' : 'Adicional'}
                 </button>
               ))}
@@ -151,13 +156,13 @@ export default function Services() {
               <span className="label">Ícone</span>
               <div className="flex flex-wrap gap-2">
                 {SERVICE_ICON_KEYS.map((k) => (
-                  <button key={k} type="button" aria-label={k} aria-pressed={f.icon === k} onClick={() => setF({ ...f, icon: k })} className={`rounded-[14px] border-2 ${f.icon === k ? 'border-accent' : 'border-transparent'}`}>
+                  <button key={k} type="button" aria-label={k} aria-pressed={f.icon === k} onClick={() => setF({ ...f, icon: k })} className={`rounded-[14px] p-[3px] ring-2 transition-shadow ${f.icon === k ? 'ring-accent' : 'ring-transparent'}`}>
                     <ServiceIcon icon={k} size="sm" />
                   </button>
                 ))}
               </div>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="card flex min-h-[50px] items-center justify-between px-4">
               <span>Ativo (aparece no app)</span>
               <Switch label="Ativo" checked={f.active} onChange={(v) => setF({ ...f, active: v })} />
             </div>
