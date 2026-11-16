@@ -12,6 +12,7 @@ import {
   Menu,
   MessageSquareHeart,
   Settings,
+  Sparkles,
   Stamp,
   Tag,
   User,
@@ -44,13 +45,14 @@ export const CLIENT_TABS: Tab[] = [
   { to: '/', label: 'Início', icon: Home, end: true },
   { to: '/agenda', label: 'Lavagens', icon: CalendarDays },
   { to: '/garagem', label: 'Garagem', icon: Car },
-  { to: '/suporte', label: 'Suporte', icon: WhatsAppIcon, support: true },
+  { to: '/servicos', label: 'Serviços', icon: Sparkles },
   { to: '/perfil', label: 'Perfil', icon: User },
 ];
 export const CLIENT_SIDE: Tab[] = [
   { to: '/', label: 'Início', icon: Home, end: true },
   { to: '/agenda', label: 'Lavagens', icon: CalendarDays },
   { to: '/garagem', label: 'Garagem', icon: Car },
+  { to: '/servicos', label: 'Serviços', icon: Sparkles },
   { to: '/fidelidade', label: 'Fidelidade', icon: Stamp },
   { to: '/perfil', label: 'Perfil', icon: User },
   { to: '/suporte', label: 'Suporte', icon: WhatsAppIcon, support: true },

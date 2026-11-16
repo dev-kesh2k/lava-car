@@ -8,6 +8,7 @@ import Home from './pages/client/Home';
 import Book from './pages/client/Book';
 import Bookings from './pages/client/Bookings';
 import BookingDetail from './pages/client/BookingDetail';
+import Catalog from './pages/client/Catalog';
 import Garage from './pages/client/Garage';
 import LoyaltyPage from './pages/client/Loyalty';
 import Profile from './pages/client/Profile';
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="/agenda" element={<Bookings />} />
           <Route path="/agenda/:id" element={<BookingDetail />} />
           <Route path="/garagem" element={<Garage />} />
+          <Route path="/servicos" element={<Catalog />} />
           <Route path="/fidelidade" element={<LoyaltyPage />} />
           <Route path="/perfil" element={<Profile />} />
           <Route path="/perfil/ajuda" element={<Help />} />
