@@ -13,3 +13,6 @@ Para um início `t` e duração `d` (soma do principal + adicionais):
 Implementado duas vezes, de propósito:
 - `src/lib/availability.ts` (`peakOverlap`, `buildSlots`) monta a grade na tela, com testes em `availability.test.ts`.
 - `os_peak_overlap` no banco é a palavra final dentro de `book_appointment`, com `pg_advisory_xact_lock` por loja para dois clientes não pegarem o último box no mesmo instante. Se perder a corrida, o app mostra "Horário esgotado" e volta para a grade.
+
+## Fuso horário
+`opening_hours` é local da loja (`tenants.timezone`, padrão `America/Sao_Paulo`). O app converte com `zonedTimeToUtc` (`src/lib/timezone.ts`) e o banco com `at time zone`.
