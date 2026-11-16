@@ -15,3 +15,12 @@ Migrações em `supabase/migrations`, aplicadas em ordem pelo nome.
 | `loyalty_cards` | Selos, prêmios disponíveis e usados |
 | `cash_entries` | Fluxo de caixa (entradas de OS pagas e despesas) |
 | `push_subscriptions` | Inscrições de Web Push por aparelho |
+
+## Regras automáticas (triggers)
+- `set_updated_at` em todas as tabelas com `updated_at`.
+- `os_set_ends_at`: `ends_at = scheduled_at + duração`.
+- `os_status_flow`: grava `started_at`/`finished_at`/`delivered_at`, atribui o funcionário que começou a lavar e trava OS cancelada.
+- `os_loyalty_stamp`: primeira vez em Pronto/Entregue carimba um selo; ao bater a meta vira prêmio.
+- `os_set_paid_at` + `os_payment_cash`: OS paga entra no caixa (uma vez só); estorno remove.
+- `handle_new_user`: cadastro cria perfil CUSTOMER e cartão fidelidade na loja do link (`tenant_slug`).
+- `profiles_guard`: só o ADMIN muda papel, comissão e status.
