@@ -70,13 +70,13 @@ export function initials(name: string) {
 export const firstName = (name: string) => name.trim().split(/\s+/)[0] || name;
 
 export const STATUS: Record<OrderStatus, { label: string; text: string; bg: string; bar: string }> = {
-  scheduled: { label: 'Agendado', text: 'text-soft', bg: 'bg-surface2', bar: 'bg-soft' },
+  scheduled: { label: 'Agendado', text: 'text-soft', bg: 'bg-surface2', bar: 'bg-muted' },
   waiting: { label: 'No pátio', text: 'text-warn', bg: 'bg-warnbg', bar: 'bg-warn' },
-  washing: { label: 'Lavando', text: 'text-accent', bg: 'bg-tint2', bar: 'bg-accent' },
-  finishing: { label: 'Finalizando', text: 'text-accent', bg: 'bg-tint2', bar: 'bg-accent' },
+  washing: { label: 'Lavando', text: 'text-accent', bg: 'bg-tint', bar: 'bg-accent' },
+  finishing: { label: 'Finalizando', text: 'text-indigo', bg: 'bg-indigobg', bar: 'bg-indigo' },
   ready: { label: 'Pronto para retirada', text: 'text-ok', bg: 'bg-okbg', bar: 'bg-ok' },
-  delivered: { label: 'Entregue', text: 'text-soft', bg: 'bg-surface2', bar: 'bg-dis' },
-  cancelled: { label: 'Cancelado', text: 'text-muted', bg: 'bg-surface2', bar: 'bg-dis' },
+  delivered: { label: 'Entregue', text: 'text-muted', bg: 'bg-surface2', bar: 'bg-dis' },
+  cancelled: { label: 'Cancelado', text: 'text-danger', bg: 'bg-dangerbg', bar: 'bg-danger' },
 };
 
 /** Etapas do acompanhamento ao vivo do cliente. */

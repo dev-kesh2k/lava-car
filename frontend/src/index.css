@@ -2,6 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Cores no idioma do iOS: claro (padrão) e escuro quando o aparelho está no modo escuro.
+   Valores em "R G B" para o Tailwind aceitar opacidade (bg-brand/20). */
+:root {
+  color-scheme: light;
+  --bg: 242 242 247; /* systemGroupedBackground */
+  --surface: 255 255 255; /* célula */
+  --surface2: 233 233 238; /* preenchimento terciário */
+  --elevated: 242 242 247; /* fundo das folhas */
+  --segment: 255 255 255;
+  --tabbar: 249 249 251;
+  --line: 198 198 200; /* separador */
+  --line2: 199 199 204;
+  --ink: 0 0 0;
+  --soft: 60 60 67;
+  --muted: 108 108 112;
+  --dis: 174 174 178;
+  --accent: 10 108 214; /* azul do sistema puxado para o azul-água da marca (AA no fundo cinza) */
+  --brand: 10 108 214;
+  --onaccent: 255 255 255;
+  --tint: 231 240 251;
+  --tint2: 214 231 250;
+  --ok: 30 123 52;
+  --okfill: 52 199 89;
+  --okbg: 232 247 236;
+  --warn: 201 52 0;
+  --warnbg: 255 243 228;
+  --danger: 215 0 21;
+  --dangerbg: 255 235 234;
+  --indigo: 88 86 214;
+  --indigobg: 236 236 252;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: 28 28 30;
+    --surface: 44 44 46;
+    --surface2: 58 58 60;
+    --elevated: 28 28 30;
+    --segment: 99 99 102;
+    --tabbar: 30 30 32;
+    --line: 72 72 74;
+    --line2: 84 84 88;
+    --ink: 255 255 255;
+    --soft: 209 209 214;
+    --muted: 152 152 159;
+    --dis: 99 99 102;
+    --accent: 64 156 255;
+    --brand: 10 108 214;
+    --tint: 20 42 70;
+    --tint2: 24 54 92;
+    --ok: 48 209 88;
+    --okfill: 48 209 88;
+    --okbg: 22 52 32;
+    --warn: 255 159 10;
+    --warnbg: 58 40 14;
+    --danger: 255 105 97;
+    --dangerbg: 62 26 26;
+    --indigo: 142 140 255;
+    --indigobg: 40 39 74;
+    --shadow-card: none;
+  }
+}
+
 html,
 body,
 #root {
@@ -12,13 +77,21 @@ html,
 body {
   overflow-x: hidden;
   scrollbar-width: none;
-  background: #0a0f14;
-  color: #eaf4fa;
-  color-scheme: dark;
+  background-color: rgb(var(--bg));
+  color: rgb(var(--ink));
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
   touch-action: manipulation;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter Variable', Inter, system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 17px;
+  letter-spacing: -0.2px;
+}
+
+/* Um brilho azul bem leve no topo dá identidade sem atrapalhar a leitura. */
+body {
+  background-image: radial-gradient(110% 340px at 50% -120px, rgb(var(--accent) / 0.11), transparent 70%);
+  background-repeat: no-repeat;
 }
 
 html::-webkit-scrollbar,
@@ -26,51 +99,150 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
 @layer components {
+  /* Títulos: Large Title, Title 3 e cabeçalho de grupo */
   .h1 {
-    @apply min-w-0 break-words font-display text-[clamp(1.85rem,8.5vw,2.5rem)] font-extrabold uppercase leading-[0.95] tracking-[0.01em] text-accent;
+    @apply min-w-0 break-words text-[clamp(28px,8.6vw,34px)] font-bold leading-[1.2] tracking-[0.2px] text-ink;
   }
   .h2 {
-    @apply font-display text-[clamp(1.35rem,6vw,1.6rem)] font-bold uppercase leading-none tracking-[0.01em] text-ink;
+    @apply text-title3 font-bold text-ink;
   }
+  .group-title {
+    @apply mb-2 px-4 text-footnote text-muted;
+  }
+
+  /* Cartões e listas agrupadas (inset grouped) */
   .card {
-    @apply min-w-0 rounded-[20px] border border-line bg-surface;
+    @apply min-w-0 rounded-card border border-transparent bg-surface;
+    box-shadow: var(--shadow-card);
   }
+  .list {
+    @apply min-w-0 overflow-hidden rounded-card bg-surface;
+    box-shadow: var(--shadow-card);
+  }
+  .cell {
+    @apply relative flex min-h-[48px] w-full min-w-0 items-center gap-3 px-4 py-3 text-left transition-colors duration-200;
+  }
+  button.cell:active,
+  a.cell:active {
+    @apply bg-surface2;
+  }
+  .list > .cell + .cell::before,
+  .list > * + .cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: var(--sep-inset, 16px);
+    height: 0.5px;
+    background: rgb(var(--line));
+  }
+  .chev {
+    @apply shrink-0 text-dis;
+  }
+
+  /* Botões: alturas 50 (padrão) e 44 (compacto); cantos 12; toque com realce de opacidade */
   .btn-primary {
-    @apply flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-accent px-5 text-base font-bold text-bg transition active:scale-[0.98] disabled:opacity-50;
+    @apply flex min-h-[50px] items-center justify-center gap-2 rounded-cell bg-brand px-5 text-body font-semibold text-onaccent transition-opacity duration-200 active:opacity-70 disabled:opacity-40;
   }
   .btn-secondary {
-    @apply flex min-h-[52px] items-center justify-center gap-2 rounded-2xl border border-line2 bg-transparent px-5 text-base font-medium text-ink transition active:scale-[0.98] disabled:opacity-50;
+    @apply flex min-h-[50px] items-center justify-center gap-2 rounded-cell bg-tint px-5 text-body font-semibold text-accent transition-opacity duration-200 active:opacity-60 disabled:opacity-40;
   }
   .btn-danger {
-    @apply flex min-h-[52px] items-center justify-center gap-2 rounded-2xl border border-danger/40 bg-dangerbg px-5 text-base font-semibold text-danger transition active:scale-[0.98] disabled:opacity-50;
+    @apply flex min-h-[50px] items-center justify-center gap-2 rounded-cell bg-dangerbg px-5 text-body font-semibold text-danger transition-opacity duration-200 active:opacity-60 disabled:opacity-40;
   }
   .btn-pill {
-    @apply flex min-h-[48px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-accent px-5 text-base font-bold text-bg transition active:scale-95 disabled:opacity-50;
+    @apply flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 text-subhead font-semibold text-onaccent transition-opacity duration-200 active:opacity-70 disabled:opacity-40;
+  }
+  .btn-text {
+    @apply inline-flex min-h-[44px] items-center gap-1 text-body text-accent transition-opacity duration-200 active:opacity-50 disabled:opacity-40;
   }
   .icon-btn {
-    @apply relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-line bg-surface text-ink transition active:scale-95;
+    @apply relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface text-accent transition-opacity duration-200 active:opacity-60 disabled:opacity-30;
+    box-shadow: var(--shadow-card);
   }
+
+  .bar-btn {
+    @apply relative flex h-11 w-11 items-center justify-center text-accent transition-opacity duration-200 active:opacity-40;
+  }
+  .badge {
+    @apply absolute right-0.5 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold leading-none text-white;
+  }
+
+  /* Campos */
   .input {
-    @apply min-h-[52px] w-full min-w-0 rounded-2xl border border-line bg-surface px-4 py-3 text-base text-ink outline-none transition placeholder:text-muted focus:border-accent;
+    @apply min-h-[50px] w-full min-w-0 rounded-cell border border-line/80 bg-surface px-4 py-3 text-body text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-dis focus:border-accent focus:ring-4 focus:ring-accent/15;
+  }
+  select.input {
+    @apply appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m7 9 5-5 5 5M7 15l5 5 5-5'/%3E%3C/svg%3E");
+    background-position: right 14px center;
   }
   .label {
-    @apply mb-1.5 block text-sm font-medium text-soft;
+    @apply mb-1.5 block px-1 text-footnote font-medium text-muted;
   }
+
+  /* Chips e controle segmentado */
   .chip {
-    @apply flex min-h-[44px] shrink-0 items-center justify-center whitespace-nowrap rounded-[22px] border border-line2 px-5 text-base font-medium text-ink transition active:scale-95;
+    @apply flex min-h-[44px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-line/70 bg-surface px-4 text-subhead font-medium text-ink transition-colors duration-200 active:opacity-70;
   }
   .chip-on {
-    @apply border-accent bg-accent font-bold text-bg;
+    @apply border-brand bg-brand font-semibold text-onaccent;
   }
-  .stripes {
-    background-color: #1a242d;
-    background-image: repeating-linear-gradient(135deg, #1a242d 0 12px, #15202a 12px 24px);
+  .segmented {
+    @apply grid gap-0.5 rounded-[11px] bg-surface2 p-[3px];
   }
+  .segment {
+    @apply flex min-h-[40px] min-w-0 items-center justify-center rounded-[9px] px-1 text-subhead font-medium text-ink transition-[background-color,box-shadow] duration-200;
+  }
+  .segment-on {
+    @apply font-semibold;
+    background: rgb(var(--segment));
+    box-shadow: 0 3px 8px rgb(0 0 0 / 0.12), 0 1px 1px rgb(0 0 0 / 0.04);
+  }
+
+  /* Barras translúcidas (navegação e abas) */
+  .glass {
+    background: rgb(var(--tabbar) / 0.78);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
+  .hairline-t {
+    box-shadow: inset 0 0.5px 0 rgb(var(--line));
+  }
+  .hairline-b {
+    box-shadow: inset 0 -0.5px 0 rgb(var(--line));
+  }
+
   .no-scrollbar {
     scrollbar-width: none;
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* Separadores finos (0,5 px) como no iOS, inclusive nas listas com divide-y. */
+.divide-y.divide-line > :not([hidden]) ~ :not([hidden]) {
+  border-top-width: 0.5px;
+}
+.card .icon-btn,
+.list .icon-btn {
+  box-shadow: none;
+  background: rgb(var(--surface2));
 }

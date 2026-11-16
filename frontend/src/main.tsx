@@ -1,11 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import '@fontsource/big-shoulders-display/latin-700';
-import '@fontsource/big-shoulders-display/latin-800';
-import '@fontsource/dm-sans/latin-400';
-import '@fontsource/dm-sans/latin-500';
-import '@fontsource/dm-sans/latin-700';
+// Inter só é baixada onde não há a fonte do sistema da Apple (Android/desktop).
+import '@fontsource-variable/inter/wght.css';
 import App from './App';
 import { AuthProvider } from './auth';
 import './index.css';
