@@ -215,7 +215,7 @@ export async function moveStatus(id, to, { userId, employeeId } = {}) {
     }
     if (to === 'delivered') data.deliveredAt = now;
     const order = await tx.order.update({ where: { id: o.id }, data, include: orderInclude });
-    return { order, becameReady };
+    return { order, becameReady, from: o.status };
   });
 }
 

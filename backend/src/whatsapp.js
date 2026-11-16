@@ -12,7 +12,16 @@ const TIMEOUT = 10_000;
 export const bridgeConfigured = () => !!BRIDGE_URL() && !!BRIDGE_SECRET();
 
 /** Eventos que o dono pode ligar/desligar em Configurações → WhatsApp. */
-export const WA_EVENTS = ['confirmed', 'cancelled', 'ready', 'delivered', 'reminder'];
+export const WA_EVENTS = ['confirmed', 'arrived', 'washing', 'finishing', 'ready', 'delivered', 'cancelled', 'reminder'];
+
+/** Evento de WhatsApp de cada etapa do pátio (só quando a OS avança). */
+export const STATUS_EVENT = { waiting: 'arrived', washing: 'washing', finishing: 'finishing', ready: 'ready', delivered: 'delivered' };
+const FLOW = ['scheduled', 'waiting', 'washing', 'finishing', 'ready', 'delivered'];
+
+/** Evento a avisar ao mudar de etapa: só avanço (voltar uma etapa não manda mensagem). */
+export function statusEvent(from, to) {
+  return FLOW.indexOf(to) > FLOW.indexOf(from) ? STATUS_EVENT[to] || null : null;
+}
 export const eventsOf = (s) => String(s.waEvents ?? WA_EVENTS.join(',')).split(',').filter((e) => WA_EVENTS.includes(e));
 
 /** Avisos automáticos ligados e ponte configurada. */
@@ -119,6 +128,12 @@ export function clientMessage(event, o, s) {
       return `${hello(o)} Seu agendamento no ${s.studioName} está confirmado: ${services(o)} no ${car(o)}, ${when(o)}. Total ${brl(o.totalCents - (o.discountCents || 0))}, pago no local.${link(s, o)}`;
     case 'cancelled':
       return `${hello(o)} Seu agendamento (${when(o)}) foi cancelado pelo ${s.studioName}.${o.cancelReason ? ` Motivo: ${o.cancelReason}.` : ''}${link(s, o)}`;
+    case 'arrived':
+      return `${hello(o)} Seu ${car(o)} chegou ao ${s.studioName} e já está na fila. Avisamos a cada etapa.${link(s, o)}`;
+    case 'washing':
+      return `${hello(o)} Começamos a lavar seu ${car(o)}.${link(s, o)}`;
+    case 'finishing':
+      return `${hello(o)} Seu ${car(o)} está no acabamento, falta pouco!${link(s, o)}`;
     case 'ready':
       return `${readyMessage({ name: o.clientName, model: o.model, plate: o.plate })}${link(s, o)}`;
     case 'delivered':

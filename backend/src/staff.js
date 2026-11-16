@@ -20,7 +20,7 @@ import {
   loyaltyOf,
 } from './orders.js';
 import { quote, readyMessage } from './rules.js';
-import { notifyClientWA } from './whatsapp.js';
+import { notifyClientWA, statusEvent } from './whatsapp.js';
 
 export const staff = express.Router();
 
@@ -116,9 +116,11 @@ staff.post('/orders', wrap(async (req, res) => {
 
 staff.post('/orders/:id/status', wrap(async (req, res) => {
   const to = oneOf(req.body.status, 'Etapa', ['scheduled', 'waiting', 'washing', 'finishing', 'ready', 'delivered']);
-  const { order, becameReady } = await moveStatus(req.params.id, to, { userId: req.user.id, employeeId: req.body.employeeId });
-  if (becameReady) notifyClientWA('ready', order);
-  if (to === 'delivered') notifyClientWA('delivered', order);
+  const { order, from, becameReady } = await moveStatus(req.params.id, to, { userId: req.user.id, employeeId: req.body.employeeId });
+  // Cada avanço de etapa avisa o cliente (chegou, lavando, acabamento, pronto, entregue); voltar não avisa
+  // e "pronto" sai uma vez só por OS.
+  const event = statusEvent(from, to);
+  if (event && (event !== 'ready' || becameReady)) notifyClientWA(event, order);
   res.json({
     order: serializeOrder(order),
     whatsappText: to === 'ready' ? readyMessage({ name: order.clientName, model: order.model, plate: order.plate }) : null,
