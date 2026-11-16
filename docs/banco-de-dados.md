@@ -24,3 +24,14 @@ Migrações em `supabase/migrations`, aplicadas em ordem pelo nome.
 - `os_set_paid_at` + `os_payment_cash`: OS paga entra no caixa (uma vez só); estorno remove.
 - `handle_new_user`: cadastro cria perfil CUSTOMER e cartão fidelidade na loja do link (`tenant_slug`).
 - `profiles_guard`: só o ADMIN muda papel, comissão e status.
+
+## Funções chamadas pelo app
+| Função | Quem | O que faz |
+|---|---|---|
+| `get_busy_intervals(from, to)` | logado | Horários ocupados da loja (sem dados pessoais) |
+| `book_appointment(...)` | cliente | Valida carro, serviços, preço, horário de funcionamento e boxes; cria OS e itens |
+| `open_walk_in(...)` | equipe | Cria/atualiza o carro pela placa e joga na fila |
+| `cancel_appointment(os)` | cliente/equipe | Cancela enquanto está Agendado |
+| `redeem_loyalty_reward(cliente)` | equipe | Usa uma lavagem grátis |
+| `dashboard_summary(de, até)` | ADMIN | Faturamento, carros, ticket médio, top 5 e série diária |
+| `commission_report(de, até)` | ADMIN | Comissão por funcionário |
