@@ -10,3 +10,6 @@
 
 ### Fase 3 — Pátio
 - Kanban em tempo real, OS avulsa, vistoria com até 4 fotos e avarias, aviso no WhatsApp.
+
+### Fase 4 — Dono
+- Painel gerencial, matriz de preços, comissões semanais e fluxo de caixa.
