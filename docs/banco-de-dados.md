@@ -35,3 +35,9 @@ Migrações em `supabase/migrations`, aplicadas em ordem pelo nome.
 | `redeem_loyalty_reward(cliente)` | equipe | Usa uma lavagem grátis |
 | `dashboard_summary(de, até)` | ADMIN | Faturamento, carros, ticket médio, top 5 e série diária |
 | `commission_report(de, até)` | ADMIN | Comissão por funcionário |
+
+## RLS em resumo
+- Cliente: `owner_id = auth.uid()` (carros) e `customer_id = auth.uid()` (OS, itens, vistoria, cartão).
+- Equipe: `is_staff() and tenant_id = auth_tenant_id()`.
+- Caixa: só `is_admin()`.
+- Lojas: leitura pública (nome e horários aparecem antes do login).
