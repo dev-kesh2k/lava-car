@@ -412,7 +412,27 @@ export function Stepper({ step }: { step: number }) {
 }
 
 // ---------- Folha modal (sheet do iOS) ----------
-export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+/**
+ * Folha que sobe de baixo, com alça. `header` fica fixo sob o título, `footer` fica fixo no rodapé
+ * (área segura) e só o meio rola. `tall` fixa a altura (bom para folhas com abas, que não "pulam").
+ */
+export function Sheet({
+  open,
+  onClose,
+  title,
+  children,
+  header,
+  footer,
+  tall,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+  header?: ReactNode;
+  footer?: ReactNode;
+  tall?: boolean;
+}) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -425,22 +445,71 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
     };
   }, [open, onClose]);
   if (!open) return null;
+  const pad = 'px-4 min-[380px]:px-5';
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-6" role="dialog" aria-modal="true" aria-label={title}>
       <button type="button" aria-label="Fechar" className="absolute inset-0 animate-fade-in bg-black/40" onClick={onClose} />
-      <div className="relative max-h-[94dvh] w-full animate-sheet-up overflow-y-auto rounded-t-[14px] bg-elevated px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl md:max-w-lg md:animate-pop-in md:rounded-[14px] min-[380px]:px-5">
-        <div className="sticky top-0 z-10 -mx-4 bg-elevated/90 px-4 pb-3 pt-2 backdrop-blur-md min-[380px]:-mx-5 min-[380px]:px-5">
+      <div
+        className={`relative flex w-full animate-sheet-up flex-col overflow-hidden rounded-t-[14px] bg-elevated shadow-2xl md:max-w-lg md:animate-pop-in md:rounded-[14px] ${
+          tall ? 'h-[92dvh] md:h-[min(760px,88dvh)]' : 'max-h-[94dvh]'
+        }`}
+      >
+        <div className={`shrink-0 pb-3 pt-2 ${pad} ${header ? 'hairline-b' : ''}`}>
           <div className="mx-auto mb-2.5 h-[5px] w-9 rounded-full bg-line md:hidden" aria-hidden />
           <div className="flex items-center gap-3">
             <h2 className="min-w-0 flex-1 break-words text-title3 font-bold">{title}</h2>
-            <button type="button" aria-label="Fechar" onClick={onClose} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
+            <button type="button" aria-label="Fechar" onClick={onClose} className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
               <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-surface2 text-muted">
                 <X size={17} strokeWidth={2.6} />
               </span>
             </button>
           </div>
+          {header}
         </div>
-        <div className="pt-1">{children}</div>
+        <div className={`min-h-0 flex-1 overflow-y-auto overscroll-contain pt-1 ${pad} ${footer ? 'pb-5' : 'pb-[max(1.5rem,env(safe-area-inset-bottom))]'}`}>{children}</div>
+        {footer && <div className={`glass hairline-t shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 ${pad}`}>{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Action sheet do iOS ----------
+export type SheetAction = { label: string; onClick: () => void; destructive?: boolean; icon?: LucideIcon };
+
+/** Lista de ações que sobe de baixo, com o "Cancelar" separado, como no iPhone. */
+export function ActionSheet({ open, onClose, title, actions }: { open: boolean; onClose: () => void; title?: string; actions: SheetAction[] }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+  if (!open) return null;
+  const group = 'overflow-hidden rounded-[14px] bg-[rgb(var(--surface)/0.92)] backdrop-blur-xl';
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end justify-center md:items-center" role="dialog" aria-modal="true" aria-label={title || 'Ações'}>
+      <button type="button" aria-label="Fechar" className="absolute inset-0 animate-fade-in bg-black/40" onClick={onClose} />
+      <div className="relative w-full max-w-md animate-sheet-up px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:animate-pop-in">
+        <div className={group}>
+          {title && <p className="px-4 py-3.5 text-center text-footnote text-muted hairline-b">{title}</p>}
+          {actions.map((a, i) => (
+            <button
+              key={a.label}
+              type="button"
+              onClick={() => {
+                onClose();
+                a.onClick();
+              }}
+              className={`flex min-h-[56px] w-full items-center justify-center gap-2 px-4 text-[19px] transition-colors active:bg-surface2 ${a.destructive ? 'text-danger' : 'text-accent'} ${i ? 'hairline-t' : ''}`}
+            >
+              {a.icon && <a.icon size={20} strokeWidth={1.9} />}
+              {a.label}
+            </button>
+          ))}
+        </div>
+        <button type="button" onClick={onClose} className={`${group} mt-2 flex min-h-[56px] w-full items-center justify-center text-[19px] font-semibold text-accent active:bg-surface2`}>
+          Cancelar
+        </button>
       </div>
     </div>
   );
