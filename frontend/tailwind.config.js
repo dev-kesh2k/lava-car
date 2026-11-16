@@ -20,6 +20,7 @@ export default {
         caption: ['12px', { lineHeight: '16px' }],
         footnote: ['13px', { lineHeight: '18px' }],
         subhead: ['15px', { lineHeight: '20px', letterSpacing: '-0.2px' }],
+        callout: ['16px', { lineHeight: '21px', letterSpacing: '-0.3px' }],
         body: ['17px', { lineHeight: '22px', letterSpacing: '-0.4px' }],
         title3: ['20px', { lineHeight: '25px', letterSpacing: '-0.4px' }],
         title2: ['22px', { lineHeight: '28px', letterSpacing: '-0.3px' }],

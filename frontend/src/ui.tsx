@@ -69,33 +69,35 @@ export function PageHead({
           collapsed ? 'glass hairline-b' : ''
         }`}
       >
-        <div className="relative mx-auto flex h-11 max-w-5xl items-center px-2 md:px-6">
-          {hasBack && (
-            <button
-              type="button"
-              aria-label="Voltar"
-              onClick={() => (onBack ? onBack() : back === true ? nav(-1) : nav(back as string))}
-              className="btn-text pointer-events-auto relative z-10 -ml-0.5 pr-3"
-            >
-              <ChevronLeft size={28} strokeWidth={2.2} className="-mr-1" /> Voltar
-            </button>
-          )}
+        <div className="relative mx-auto flex h-11 max-w-5xl items-center gap-2 px-3 min-[380px]:px-4 md:px-10">
+          <div className="flex min-w-0 flex-1 basis-0 items-center">
+            {hasBack && (
+              <button
+                type="button"
+                aria-label="Voltar"
+                onClick={() => (onBack ? onBack() : back === true ? nav(-1) : nav(back as string))}
+                className="btn-text pointer-events-auto relative z-10 -ml-1.5 pr-3"
+              >
+                <ChevronLeft size={28} strokeWidth={2.2} className="-mr-1" /> Voltar
+              </button>
+            )}
+          </div>
           <p
             aria-hidden
-            className={`absolute inset-x-24 truncate text-center text-body font-semibold text-ink transition-opacity duration-200 ${collapsed ? 'opacity-100' : 'opacity-0'}`}
+            className={`min-w-0 max-w-[55%] shrink truncate text-center text-body font-semibold text-ink transition-opacity duration-200 ${collapsed ? 'opacity-100' : 'opacity-0'}`}
           >
             {small}
           </p>
-          {toolbar && <div className="pointer-events-auto relative z-10 ml-auto flex items-center">{toolbar}</div>}
+          <div className="bar-action pointer-events-auto relative z-10 flex flex-1 basis-0 items-center justify-end gap-1">
+            {toolbar}
+            {action}
+          </div>
         </div>
       </div>
       {eyebrow && <p className="mb-0.5 text-subhead text-muted">{eyebrow}</p>}
-      <div className="flex items-center gap-3">
-        <h1 ref={ref} className="h1 min-w-0 flex-1">
-          {title}
-        </h1>
-        {action}
-      </div>
+      <h1 ref={ref} className="h1">
+        {title}
+      </h1>
       {subtitle && <p className="mt-1.5 text-subhead text-muted">{subtitle}</p>}
     </header>
   );
@@ -211,6 +213,16 @@ export function Tile({ icon: I, color }: { icon: LucideIcon; color: string }) {
     <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[8px] text-white" style={{ background: color }}>
       <I size={18} strokeWidth={2} />
     </span>
+  );
+}
+
+/** Linha de lista no padrão do iOS: rótulo cinza à esquerda e valor à direita (quebra em até 2 linhas). */
+export function InfoRow({ label, children, strong }: { label: string; children: ReactNode; strong?: boolean }) {
+  return (
+    <div className="cell items-start justify-between gap-4">
+      <span className={`shrink-0 ${strong ? 'font-semibold text-ink' : 'text-muted'}`}>{label}</span>
+      <span className={`line-clamp-2 min-w-0 flex-1 break-words text-right ${strong ? 'font-semibold' : ''}`}>{children}</span>
+    </div>
   );
 }
 
@@ -563,7 +575,7 @@ export function Lightbox({
       }}
     >
       <div className="flex items-center justify-between gap-3 px-4 pt-[max(1rem,env(safe-area-inset-top))]">
-        <span className="text-sm text-soft">{count > 1 ? `${index + 1} de ${count}` : ''}</span>
+        <span className="text-subhead text-soft">{count > 1 ? `${index + 1} de ${count}` : ''}</span>
         <button className="icon-btn" aria-label="Fechar" onClick={onClose}>
           <X size={22} />
         </button>
