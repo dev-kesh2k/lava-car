@@ -79,19 +79,19 @@ export default function Garage() {
             key={v.id}
             v={v}
             right={
-              <div className="flex shrink-0 gap-1">
+              <div className="-mr-2 flex shrink-0">
                 <button
-                  className="icon-btn h-11 w-11"
+                  className="flex h-11 w-10 items-center justify-center text-accent active:opacity-50"
                   aria-label={`Editar ${formatPlate(v.plate)}`}
                   onClick={() => {
                     setEditing(v);
                     setOpen(true);
                   }}
                 >
-                  <Pencil size={18} />
+                  <Pencil size={20} strokeWidth={1.75} />
                 </button>
-                <button className="icon-btn h-11 w-11 text-danger" aria-label={`Remover ${formatPlate(v.plate)}`} onClick={() => remove(v)}>
-                  <Trash2 size={18} />
+                <button className="flex h-11 w-10 items-center justify-center text-danger active:opacity-50" aria-label={`Remover ${formatPlate(v.plate)}`} onClick={() => remove(v)}>
+                  <Trash2 size={20} strokeWidth={1.75} />
                 </button>
               </div>
             }

@@ -54,14 +54,14 @@ export default function Bookings() {
           </Link>
         }
       />
-      <div className="mb-5 grid grid-cols-3 gap-1 rounded-2xl border border-line bg-surface p-1" role="tablist">
+      <div className="mb-5 segmented grid-cols-3" role="tablist">
         {TABS.map((t) => (
           <button
             key={t.id}
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`min-h-[44px] min-w-0 truncate rounded-xl px-1 text-[clamp(13px,4vw,15px)] font-medium transition ${tab === t.id ? 'bg-accent font-bold text-bg' : 'text-soft'}`}
+            className={`segment truncate ${tab === t.id ? 'segment-on' : ''}`}
           >
             {t.label}
             {data && groups[t.id].length > 0 && <span className="ml-1 hidden opacity-70 min-[400px]:inline">{groups[t.id].length}</span>}

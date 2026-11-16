@@ -33,7 +33,7 @@ export default function Social({ config, compact }: { config: Config; compact?: 
     return (
       <div className="flex flex-wrap gap-2">
         {links.map((l) => (
-          <a key={l.key} href={l.href} target="_blank" rel="noreferrer" aria-label={l.label} className="icon-btn text-accent">
+          <a key={l.key} href={l.href} target="_blank" rel="noreferrer" aria-label={l.label} className="flex h-11 w-11 items-center justify-center rounded-full bg-surface2 transition-opacity active:opacity-60">
             <l.icon size={22} />
           </a>
         ))}
@@ -43,7 +43,7 @@ export default function Social({ config, compact }: { config: Config; compact?: 
     <div className="grid gap-3 sm:grid-cols-2">
       {links.map((l) => (
         <a key={l.key} href={l.href} target="_blank" rel="noreferrer" className="card flex min-h-[64px] items-center gap-4 px-4 py-3 transition active:scale-[0.99]">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-tint2 text-accent">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[11px] bg-tint text-accent">
             <l.icon size={22} />
           </span>
           <span className="min-w-0 flex-1">

@@ -103,7 +103,7 @@ export default function BookingDetail() {
       <PageHead back="/agenda" eyebrow={`OS ${o.number}`} title={o.items.find((i) => i.kind === 'main')?.name || 'Lavagem'} />
 
       {params.get('novo') && o.status === 'scheduled' && (
-        <div className="mb-5 flex items-start gap-3 rounded-[20px] border border-ok/30 bg-okbg p-4">
+        <div className="mb-5 flex items-start gap-3 rounded-card bg-okbg p-4 animate-pop-in">
           <CheckCircle2 className="mt-0.5 shrink-0 text-ok" />
           <div>
             <p className="font-bold text-ok">Agendamento confirmado!</p>
@@ -116,7 +116,7 @@ export default function BookingDetail() {
         <div className="mb-5 flex items-center gap-3">
           <Plate plate={o.plate} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-lg font-bold">{o.model || 'Seu carro'}</p>
+            <p className="truncate text-body font-semibold">{o.model || 'Seu carro'}</p>
             <p className="truncate text-sm text-muted">{[o.color, sizeLabel(o.size)].filter(Boolean).join(' · ')}</p>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function BookingDetail() {
           <StatusPill status="cancelled" />
         ) : (
           <>
-            <p className={`mb-3 font-display text-[clamp(1.6rem,7vw,2.1rem)] font-extrabold uppercase leading-none ${STATUS[o.status].text}`}>{STATUS[o.status].label}</p>
+            <p className={`mb-4 text-title2 font-bold ${STATUS[o.status].text}`}>{STATUS[o.status].label}</p>
             <Tracker order={o} />
             {live && (
               <p className="mt-4 flex items-center gap-2 text-sm text-muted">

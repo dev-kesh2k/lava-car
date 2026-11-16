@@ -44,7 +44,7 @@ export default function Feedback() {
       {sent ? (
         <div className="card flex flex-col items-center gap-3 p-8 text-center">
           <CheckCircle2 size={40} className="text-ok" />
-          <p className="text-lg font-bold">Obrigado pelo feedback!</p>
+          <p className="text-body font-semibold">Obrigado pelo feedback!</p>
           <p className="text-muted">{phone ? 'Se precisar, a loja responde pelo seu celular.' : 'Sua mensagem foi enviada para a equipe.'}</p>
           <button className="btn-secondary mt-2" onClick={() => setSent(false)}>
             Enviar outra mensagem
@@ -62,7 +62,7 @@ export default function Feedback() {
                   role="radio"
                   aria-checked={kind === k.id}
                   onClick={() => setKind(k.id)}
-                  className={`flex min-h-[52px] items-center justify-center gap-2 rounded-2xl border px-2 text-base transition ${kind === k.id ? 'border-accent bg-tint font-bold text-ink' : 'border-line text-soft'}`}
+                  className={`flex min-h-[50px] items-center justify-center gap-2 rounded-cell bg-surface px-2 text-subhead ring-2 transition-[box-shadow] duration-200 ${kind === k.id ? 'font-semibold text-ink ring-accent' : 'text-soft ring-transparent'}`}
                 >
                   <k.icon size={18} className={kind === k.id ? 'text-accent' : ''} /> {k.label}
                 </button>

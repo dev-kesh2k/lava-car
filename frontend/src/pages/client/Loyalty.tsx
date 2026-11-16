@@ -29,15 +29,15 @@ export default function LoyaltyPage() {
           <LoyaltyCard loyalty={data.loyalty} />
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div className="card p-5">
-              <p className="text-sm text-muted">Lavagens no total</p>
-              <p className="font-display text-4xl font-extrabold">{data.loyalty.totalWashes}</p>
+              <p className="text-footnote text-muted">Lavagens no total</p>
+              <p className="mt-1 text-title1 font-bold tabular-nums">{data.loyalty.totalWashes}</p>
             </div>
             <div className="card p-5">
-              <p className="text-sm text-muted">Grátis disponíveis</p>
-              <p className="font-display text-4xl font-extrabold text-ok">{data.loyalty.rewards}</p>
+              <p className="text-footnote text-muted">Grátis disponíveis</p>
+              <p className="mt-1 text-title1 font-bold tabular-nums text-ok">{data.loyalty.rewards}</p>
             </div>
           </div>
-          {data.loyalty.rewards > 0 && <p className="mt-4 rounded-2xl bg-okbg p-4 text-sm text-soft">Para usar a lavagem grátis, avise no balcão quando chegar: a equipe aplica na sua OS.</p>}
+          {data.loyalty.rewards > 0 && <p className="mt-4 rounded-card bg-okbg p-4 text-subhead text-ok">Para usar a lavagem grátis, avise no balcão quando chegar: a equipe aplica na sua OS.</p>}
           <Link to="/agendar" className="btn-primary mt-6 w-full sm:w-auto sm:min-w-[16rem]">
             <CalendarPlus size={20} /> Agendar lavagem
           </Link>

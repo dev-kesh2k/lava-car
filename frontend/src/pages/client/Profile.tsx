@@ -1,18 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, Camera, Car, ChevronRight, CircleHelp, Info, Lock, MessageSquareHeart, Smartphone, Stamp } from 'lucide-react';
 import { api, apiUrl } from '../../api';
 import { forgetClient, getSavedName, getSavedPhone, isValidPhone, maskPhone, saveClient } from '../../client';
-import { Avatar, Field, FormError, PageHead, Sheet, toast } from '../../ui';
+import { Avatar, Field, FormError, PageHead, Sheet, Tile, toast } from '../../ui';
 import { squareImage } from '../../util';
 
 const MENU = [
-  { to: '/agenda', label: 'Minhas lavagens', icon: CalendarDays },
-  { to: '/garagem', label: 'Garagem', icon: Car },
-  { to: '/fidelidade', label: 'Cartão fidelidade', icon: Stamp },
-  { to: '/sobre', label: 'Sobre e localização', icon: Info },
-  { to: '/perfil/feedback', label: 'Enviar feedback', icon: MessageSquareHeart },
-  { to: '/perfil/ajuda', label: 'Ajuda e suporte', icon: CircleHelp },
+  { to: '/agenda', label: 'Minhas lavagens', icon: CalendarDays, color: '#FF3B30' },
+  { to: '/garagem', label: 'Garagem', icon: Car, color: '#0A6CD6' },
+  { to: '/fidelidade', label: 'Cartão fidelidade', icon: Stamp, color: '#34C759' },
+  { to: '/sobre', label: 'Sobre e localização', icon: Info, color: '#5AC8FA' },
+  { to: '/perfil/feedback', label: 'Enviar feedback', icon: MessageSquareHeart, color: '#FF2D55' },
+  { to: '/perfil/ajuda', label: 'Ajuda e suporte', icon: CircleHelp, color: '#8E8E93' },
 ];
 
 interface ClientProfile {
@@ -119,7 +119,7 @@ export default function Profile() {
       <div className="card flex items-center gap-4 p-5 min-[380px]:p-6">
         <label className={`relative shrink-0 cursor-pointer ${busy ? 'pointer-events-none opacity-60' : ''}`} aria-label="Trocar foto do perfil">
           <Avatar name={name || 'Você'} size="lg" accent src={apiUrl(profile?.avatar)} />
-          <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-accent text-bg">
+          <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface bg-brand text-onaccent">
             <Camera size={16} />
           </span>
           <input type="file" accept="image/*" className="sr-only" onChange={(e) => {
@@ -132,21 +132,21 @@ export default function Profile() {
           <span className="min-w-0 flex-1">
             {phone ? (
               <>
-                <span className="block break-words text-xl font-bold">{name || 'Seu perfil'}</span>
-                <span className="block text-base text-muted">{phone}</span>
+                <span className="block break-words text-title3 font-semibold">{name || 'Seu perfil'}</span>
+                <span className="block text-subhead text-muted">{phone}</span>
               </>
             ) : (
               <>
-                <span className="block text-xl font-bold">Sem celular salvo</span>
-                <span className="block text-base text-muted">Toque para informar</span>
+                <span className="block text-title3 font-semibold">Sem celular salvo</span>
+                <span className="block text-subhead text-muted">Toque para informar</span>
               </>
             )}
           </span>
-          <ChevronRight size={20} className="shrink-0 text-soft" />
+          <ChevronRight size={20} className="chev" />
         </button>
       </div>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 px-1">
-        <p className="text-sm text-muted">Sem cadastro: seu celular guarda a garagem, as lavagens e os selos.</p>
+        <p className="text-footnote text-muted">Sem cadastro: seu celular guarda a garagem, as lavagens e os selos.</p>
         {profile?.avatar && (
           <button className="min-h-[40px] text-sm font-bold text-accent" onClick={removeAvatar}>
             Remover foto
@@ -154,19 +154,19 @@ export default function Profile() {
         )}
       </div>
 
-      <nav className="card mt-5 py-2" aria-label="Opções">
+      <nav className="list mt-6" style={{ '--sep-inset': '58px' } as CSSProperties} aria-label="Opções">
         {MENU.map((m) => (
-          <Link key={m.to} to={m.to} className="flex min-h-[60px] items-center gap-4 px-5 py-2 text-base transition active:bg-surface2 min-[380px]:px-6 min-[380px]:text-lg">
-            <m.icon size={24} className="shrink-0" />
-            <span className="min-w-0 flex-1">{m.label}</span>
-            <ChevronRight size={20} className="shrink-0 text-soft" />
+          <Link key={m.to} to={m.to} className="cell">
+            <Tile icon={m.icon} color={m.color} />
+            <span className="min-w-0 flex-1 text-body">{m.label}</span>
+            <ChevronRight size={20} className="chev" />
           </Link>
         ))}
       </nav>
 
       {phone && (
-        <button onClick={forget} className="card mt-5 flex min-h-[60px] w-full items-center gap-4 px-5 py-2 text-left text-base text-accent min-[380px]:px-6">
-          <Smartphone size={22} /> Esquecer meu celular neste aparelho
+        <button onClick={forget} className="list cell mt-6 text-body text-danger active:bg-surface2">
+          <Smartphone size={20} /> Esquecer meu celular neste aparelho
         </button>
       )}
 
