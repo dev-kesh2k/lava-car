@@ -180,6 +180,19 @@ body::-webkit-scrollbar {
   .bar-btn {
     @apply relative flex h-11 w-11 items-center justify-center text-accent transition-opacity duration-200 active:opacity-40;
   }
+  /* Botão de ação na barra de navegação: pílula compacta (34 px) com área de toque de 44 px. */
+  .bar-action .btn-pill {
+    @apply relative min-h-[34px] gap-1 px-3.5 text-subhead;
+  }
+  .bar-action .btn-pill::after {
+    content: '';
+    position: absolute;
+    inset: -5px -2px;
+  }
+  .bar-action .btn-pill svg {
+    width: 18px;
+    height: 18px;
+  }
   .badge {
     @apply absolute right-0.5 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold leading-none text-white;
   }
