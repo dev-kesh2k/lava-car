@@ -18,3 +18,9 @@ npm ci && npm run build   # gera dist/
 ```
 Variáveis: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_VAPID_PUBLIC_KEY`, `VITE_DEFAULT_TENANT_SLUG`.
 Configure o fallback de SPA (todas as rotas → `index.html`) e HTTPS (obrigatório para service worker e push).
+
+## Nova loja (multi-tenant)
+```sql
+insert into public.tenants (slug, name, box_capacity) values ('lava-rapido-centro', 'Lava Rápido Centro', 3);
+```
+Mande aos clientes o link `https://<app>/entrar?loja=lava-rapido-centro`.
