@@ -53,3 +53,8 @@ Modelar o banco inteiro antes da interface (`supabase/migrations`).
 - `src/api/` — acesso ao Supabase (uma função por operação).
 - `src/features/<área>/` — telas: `auth`, `garage`, `booking`, `tracker`, `loyalty`, `customer`, `yard`, `admin`.
 - Regras que valem dinheiro ou vaga (preço, capacidade, comissão, caixa) ficam **no banco** (`book_appointment`, `open_walk_in`, triggers); o frontend só repete a conta para mostrar.
+
+## Comandos
+- `npm run dev` · `npm run build` · `npm test` (Vitest) · `npm run lint` · `npm run check` (tipos + lint + testes, igual ao CI).
+- Banco local: `npx supabase start` e `npx supabase db reset` (aplica migrações + `supabase/seed.sql`).
+- Tipos do banco: `npx supabase gen types typescript --local > src/lib/database.types.ts` (manter `type`, não `interface`).
