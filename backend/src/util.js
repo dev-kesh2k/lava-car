@@ -282,7 +282,7 @@ export const PUBLIC_SETTINGS = {
 export const PRIVATE_SETTINGS = {
   appUrl: '',
   waEnabled: 'false',
-  waEvents: 'confirmed,cancelled,ready,delivered,reminder',
+  waEvents: 'confirmed,arrived,washing,finishing,ready,delivered,cancelled,reminder',
   waNotifyStudio: 'true',
 };
 
