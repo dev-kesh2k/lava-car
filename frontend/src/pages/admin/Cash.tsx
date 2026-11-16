@@ -94,7 +94,7 @@ export default function Cash() {
         <button className="icon-btn h-11 w-11" aria-label="Mês anterior" onClick={() => setMonth(shiftMonth(current, -1))}>
           <ChevronLeft size={20} />
         </button>
-        <p className="font-display text-xl font-bold uppercase">
+        <p className="text-title3 font-semibold first-letter:uppercase">
           {MONTHS[m - 1]} {y}
         </p>
         <button className="icon-btn h-11 w-11 disabled:opacity-30" aria-label="Próximo mês" disabled={isCurrent} onClick={() => setMonth(shiftMonth(current, 1))}>
@@ -106,19 +106,19 @@ export default function Cash() {
       {data && (
         <>
           <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
-            <div className="rounded-[20px] bg-accent p-5 text-bg">
-              <p className="text-base">Saldo do mês</p>
-              <p className="mt-1 break-words font-display text-[clamp(2.2rem,11vw,3.25rem)] font-extrabold leading-none">{brl(data.summary.balanceCents)}</p>
-              <p className="mt-2 text-sm">A receber no pátio: {brl(data.pendingCents)}</p>
+            <div className="rounded-card p-5 text-white shadow-[0_12px_28px_-14px_rgba(10,108,214,0.7)]" style={{ background: 'radial-gradient(120% 90% at 100% 0%, rgba(120,220,255,0.4), transparent 55%), linear-gradient(150deg, #0B5DB8, #0A6CD6 50%, #1FA2E6)' }}>
+              <p className="text-footnote font-medium text-white/85">Saldo do mês</p>
+              <p className="mt-1 break-words text-[clamp(30px,10vw,40px)] font-bold leading-none tracking-[-0.5px] tabular-nums">{brl(data.summary.balanceCents)}</p>
+              <p className="mt-2 text-footnote text-white/85">A receber no pátio: {brl(data.pendingCents)}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:col-span-2 sm:gap-4">
               <div className="card p-5">
-                <p className="text-base text-soft">Entradas</p>
-                <p className="mt-1 break-words font-display text-[clamp(1.6rem,7vw,2.5rem)] font-extrabold leading-none text-ok">{brl(data.summary.incomeCents)}</p>
+                <p className="text-footnote text-muted">Entradas</p>
+                <p className="mt-1 break-words text-[clamp(20px,6.4vw,28px)] font-bold leading-none tabular-nums text-ok">{brl(data.summary.incomeCents)}</p>
               </div>
               <div className="card p-5">
-                <p className="text-base text-soft">Despesas</p>
-                <p className="mt-1 break-words font-display text-[clamp(1.6rem,7vw,2.5rem)] font-extrabold leading-none text-danger">{brl(data.summary.expenseCents)}</p>
+                <p className="text-footnote text-muted">Despesas</p>
+                <p className="mt-1 break-words text-[clamp(20px,6.4vw,28px)] font-bold leading-none tabular-nums text-danger">{brl(data.summary.expenseCents)}</p>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function Cash() {
               <h2 className="h2 mb-3">Por categoria</h2>
               <div className="grid gap-2 sm:grid-cols-2">
                 {data.summary.byCategory.map((c) => (
-                  <div key={`${c.type}:${c.category}`} className="flex items-center justify-between gap-3 rounded-xl bg-surface2 px-4 py-3">
+                  <div key={`${c.type}:${c.category}`} className="flex items-center justify-between gap-3 rounded-cell bg-bg px-4 py-3">
                     <span className="min-w-0 truncate">{c.category}</span>
                     <span className={`shrink-0 font-bold ${c.type === 'income' ? 'text-ok' : 'text-danger'}`}>
                       {c.type === 'income' ? '+' : '−'} {brl(c.totalCents)}
@@ -144,21 +144,21 @@ export default function Cash() {
             {data.entries.length === 0 && <Empty icon={Receipt} title="Nada no mês" text="As OS pagas entram aqui sozinhas; lance as despesas pelo botão Lançar." />}
             <div className="card divide-y divide-line">
               {data.entries.map((e) => (
-                <div key={e.id} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
-                  {e.type === 'income' ? <ArrowUpCircle className="shrink-0 text-ok" size={22} /> : <ArrowDownCircle className="shrink-0 text-danger" size={22} />}
+                <div key={e.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
+                  {e.type === 'income' ? <ArrowUpCircle className="shrink-0 text-ok" size={22} strokeWidth={1.75} /> : <ArrowDownCircle className="shrink-0 text-danger" size={22} strokeWidth={1.75} />}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold">{e.description || e.category}</p>
-                    <p className="truncate text-sm text-muted">
+                    <p className="line-clamp-2 break-words text-body font-medium">{e.description || e.category}</p>
+                    <p className="text-footnote text-muted">
                       {fmtDate(e.day)} · {e.category}
                       {e.method ? ` · ${METHOD[e.method] || e.method}` : ''}
                       {e.orderId ? ' · automático' : ''}
                     </p>
                   </div>
-                  <p className={`shrink-0 font-bold ${e.type === 'income' ? 'text-ok' : 'text-danger'}`}>
+                  <p className={`shrink-0 text-subhead font-semibold tabular-nums ${e.type === 'income' ? 'text-ok' : 'text-danger'}`}>
                     {e.type === 'income' ? '+' : '−'} {brl(e.amountCents)}
                   </p>
                   {!e.orderId && (
-                    <button className="icon-btn h-10 w-10 shrink-0 border-transparent" aria-label="Apagar lançamento" onClick={() => remove(e)}>
+                    <button className="-my-1 -ml-1 -mr-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-danger active:opacity-50" aria-label="Apagar lançamento" onClick={() => remove(e)}>
                       <Trash2 size={18} />
                     </button>
                   )}
@@ -171,12 +171,12 @@ export default function Cash() {
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Novo lançamento">
         <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-1 rounded-2xl border border-line bg-surface2 p-1">
+          <div className="segmented grid-cols-2">
             {[
               ['expense', 'Despesa'],
               ['income', 'Entrada avulsa'],
             ].map(([k, v]) => (
-              <button key={k} onClick={() => setF({ ...f, type: k, category: k === 'income' ? 'Outras entradas' : '' })} className={`min-h-[44px] rounded-xl ${f.type === k ? 'bg-accent font-bold text-bg' : 'text-soft'}`}>
+              <button key={k} onClick={() => setF({ ...f, type: k, category: k === 'income' ? 'Outras entradas' : '' })} className={`segment ${f.type === k ? 'segment-on' : ''}`}>
                 {v}
               </button>
             ))}

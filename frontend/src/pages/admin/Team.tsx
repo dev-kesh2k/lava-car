@@ -76,7 +76,7 @@ export default function Team() {
           >
             <Avatar name={u.name} />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-lg font-bold">{u.name}</p>
+              <p className="truncate text-body font-semibold">{u.name}</p>
               <p className="truncate text-sm text-muted">{u.email}</p>
               <p className="text-sm">
                 <span className={u.role === 'admin' ? 'font-bold text-accent' : 'text-soft'}>{u.role === 'admin' ? 'Dono' : 'Operador'}</span>
@@ -141,7 +141,7 @@ export default function Team() {
                   ['operator', 'Operador', 'Pátio e agenda'],
                   ['admin', 'Dono', 'Tudo, inclusive financeiro'],
                 ].map(([k, v, h]) => (
-                  <button key={k} type="button" onClick={() => setM({ ...m, role: k })} className={`rounded-2xl border p-3 text-left ${m.role === k ? 'border-accent bg-tint' : 'border-line'}`}>
+                  <button key={k} type="button" onClick={() => setM({ ...m, role: k })} className={`rounded-cell bg-surface p-3 text-left ring-2 transition-[box-shadow] duration-200 ${m.role === k ? 'ring-accent' : 'ring-transparent'}`}>
                     <span className="block font-bold">{v}</span>
                     <span className="block text-sm text-muted">{h}</span>
                   </button>
