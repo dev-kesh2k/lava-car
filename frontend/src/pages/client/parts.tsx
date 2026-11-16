@@ -1,54 +1,66 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, Gift } from 'lucide-react';
+import { CalendarCheck, Check, ChevronRight, Droplet, Droplets, Gift, Sparkles, Warehouse, type LucideIcon } from 'lucide-react';
+import { useConfig } from '../../config';
 import { api, type Loyalty, type Order, type Size, type Vehicle } from '../../api';
 import { Field, FormError, Plate, Sheet, SizePicker, StatusPill, toast } from '../../ui';
 import { dayNum, isValidPlate, maskPlate, monthShort, progress, sizeLabel, TRACK_STEPS, WEEKDAYS_SHORT, weekdayOf } from '../../util';
 
 export function OrderCard({ order }: { order: Order }) {
   return (
-    <Link to={`/agenda/${order.id}`} className="card flex items-center gap-3 p-4 transition active:scale-[0.99] min-[380px]:gap-4">
-      <div className="flex w-[3.75rem] shrink-0 flex-col items-center rounded-2xl bg-surface2 py-2.5">
-        <span className="text-sm text-muted">{WEEKDAYS_SHORT[weekdayOf(order.date)]}</span>
-        <span className="font-display text-3xl font-extrabold leading-none">{dayNum(order.date)}</span>
-        <span className="text-sm uppercase text-muted">{monthShort(order.date)}</span>
+    <Link to={`/agenda/${order.id}`} className="card flex items-center gap-3 p-3.5 transition-opacity duration-200 active:opacity-70 min-[380px]:gap-4 min-[380px]:p-4">
+      <div className="flex w-14 shrink-0 flex-col items-center overflow-hidden rounded-xl bg-surface2 pb-1.5 text-center">
+        <span className="w-full bg-brand py-0.5 text-caption font-semibold text-onaccent">{WEEKDAYS_SHORT[weekdayOf(order.date)]}</span>
+        <span className="mt-1 text-title2 font-semibold leading-none">{dayNum(order.date)}</span>
+        <span className="mt-0.5 text-caption text-muted">{monthShort(order.date)}</span>
       </div>
       <div className="min-w-0 flex-1">
-        <p className="break-words text-lg font-bold">{order.items.find((i) => i.kind === 'main')?.name || 'Lavagem'}</p>
-        <p className="break-words text-base text-muted">
+        <p className="break-words text-body font-semibold">{order.items.find((i) => i.kind === 'main')?.name || 'Lavagem'}</p>
+        <p className="break-words text-subhead text-muted">
           {order.model || 'Carro'} · {order.time}
         </p>
-        <div className="mt-2">
+        <div className="mt-1.5">
           <StatusPill status={order.status} />
         </div>
       </div>
+      <ChevronRight size={20} className="chev" />
     </Link>
   );
 }
 
-/** Barra de progresso do acompanhamento ao vivo (Agendado → Pronto). */
+const TRACK_ICONS: LucideIcon[] = [CalendarCheck, Warehouse, Droplets, Sparkles, Check];
+
+/** Progresso do acompanhamento ao vivo (Agendado → Pronto), com ícones e linha contínua. */
 export function Tracker({ order }: { order: Order }) {
   const pct = progress(order.status);
   const idx = order.status === 'delivered' ? TRACK_STEPS.length - 1 : TRACK_STEPS.findIndex((s) => s.status === order.status);
+  const finished = order.status === 'ready' || order.status === 'delivered';
+  const fill = finished ? 'bg-okfill' : 'bg-brand';
   return (
-    <div>
-      <div className="h-3 overflow-hidden rounded-full bg-surface2" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Andamento da lavagem">
-        <div className={`h-full rounded-full transition-all duration-700 ${order.status === 'ready' || order.status === 'delivered' ? 'bg-ok' : 'bg-accent'}`} style={{ width: `${Math.max(pct, 4)}%` }} />
-      </div>
-      <ol className="mt-4 grid grid-cols-5 gap-1">
+    <div role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Andamento da lavagem">
+      <ol className="relative grid grid-cols-5">
+        <span className="absolute left-[10%] right-[10%] top-[17px] h-[3px] rounded-full bg-surface2" aria-hidden />
+        <span
+          className={`absolute left-[10%] top-[17px] h-[3px] rounded-full transition-[width] duration-700 ease-out ${fill}`}
+          style={{ width: `${(Math.max(idx, 0) / (TRACK_STEPS.length - 1)) * 80}%` }}
+          aria-hidden
+        />
         {TRACK_STEPS.map((s, i) => {
-          const done = i < idx || (i === idx && (order.status === 'ready' || order.status === 'delivered'));
-          const now = i === idx;
+          const reached = i <= idx;
+          const now = i === idx && !finished;
+          const I = TRACK_ICONS[i];
           return (
-            <li key={s.status} className="flex min-w-0 flex-col items-center text-center">
+            <li key={s.status} className="relative flex min-w-0 flex-col items-center text-center" aria-current={i === idx ? 'step' : undefined}>
               <span
-                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-bold ${
-                  done ? 'border-ok bg-ok text-bg' : now ? 'border-accent bg-tint2 text-accent' : 'border-line2 text-muted'
-                } ${now && !done ? 'animate-pulse' : ''}`}
+                className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors duration-300 ${
+                  reached ? `${fill} text-white` : 'bg-surface2 text-dis'
+                } ${now ? 'animate-ring' : ''}`}
               >
-                {done ? <Check size={16} strokeWidth={3} /> : i + 1}
+                <I size={17} strokeWidth={2.2} />
               </span>
-              <span className={`mt-1.5 text-[clamp(11px,3.2vw,14px)] leading-tight ${now ? 'font-bold text-ink' : 'text-muted'}`}>{s.label}</span>
+              <span className={`mt-1.5 max-w-full text-[clamp(10.5px,3.1vw,12px)] leading-tight ${i === idx ? 'font-semibold text-ink' : reached ? 'text-soft' : 'text-muted'}`}>
+                {s.label}
+              </span>
             </li>
           );
         })}
@@ -57,8 +69,9 @@ export function Tracker({ order }: { order: Order }) {
   );
 }
 
-/** Cartão fidelidade em selos. */
+/** Cartão fidelidade no estilo de um passe da Wallet: selos em gota e o prêmio no último espaço. */
 export function LoyaltyCard({ loyalty, compact }: { loyalty: Loyalty; compact?: boolean }) {
+  const config = useConfig();
   const headline =
     loyalty.rewards > 0
       ? loyalty.rewards === 1
@@ -68,32 +81,64 @@ export function LoyaltyCard({ loyalty, compact }: { loyalty: Loyalty; compact?: 
         ? 'Falta só 1 lavagem para ganhar a próxima!'
         : `Faltam ${loyalty.remaining} lavagens para ganhar a próxima`;
   return (
-    <div className="card overflow-hidden">
-      <div className="flex items-center gap-3 border-b border-line bg-tint px-5 py-4">
-        <Gift className="shrink-0 text-accent" size={24} />
-        <div className="min-w-0 flex-1">
-          <p className="font-bold">Cartão fidelidade</p>
-          <p className="text-sm text-soft">{headline}</p>
+    <div>
+      <div
+        className="relative overflow-hidden rounded-[18px] p-4 text-white shadow-[0_12px_28px_-12px_rgba(10,108,214,0.65)] min-[380px]:p-5"
+        style={{
+          background:
+            'radial-gradient(120% 90% at 100% 0%, rgba(120,220,255,0.45), transparent 55%), radial-gradient(90% 70% at 0% 100%, rgba(4,40,90,0.55), transparent 60%), linear-gradient(150deg, #0B5DB8 0%, #0A6CD6 45%, #1FA2E6 100%)',
+        }}
+      >
+        <svg className="pointer-events-none absolute inset-x-0 bottom-0 h-16 w-full opacity-[0.14]" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden>
+          <path d="M0 30c50-18 100-18 150 0s100 18 150 0 70-14 100-6v36H0z" fill="#fff" />
+          <path d="M0 44c60-14 120-14 180 0s120 14 220-4v20H0z" fill="#fff" />
+        </svg>
+        <div className="relative flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] bg-white/20 ring-1 ring-white/25">
+            <Droplet size={20} fill="currentColor" strokeWidth={0} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-body font-semibold leading-tight">Cartão fidelidade</p>
+            <p className="truncate text-footnote text-white/75">{config?.studioName || 'Lava Car'}</p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="text-title2 font-bold leading-none tabular-nums">
+              {loyalty.stamps}
+              <span className="text-subhead font-medium text-white/70">/{loyalty.goal}</span>
+            </p>
+            <p className="mt-1 text-caption text-white/75">selos</p>
+          </div>
         </div>
-        {loyalty.rewards > 0 && <span className="shrink-0 rounded-full bg-ok px-3 py-1 text-sm font-bold text-bg">{loyalty.rewards} grátis</span>}
-      </div>
-      <div className={`grid grid-cols-5 gap-2 p-5 ${compact ? '' : 'sm:gap-3'}`} aria-label={`${loyalty.stamps} de ${loyalty.goal} selos`}>
-        {Array.from({ length: loyalty.goal }, (_, i) => {
-          const on = i < loyalty.stamps;
-          const last = i === loyalty.goal - 1;
-          return (
-            <span
-              key={i}
-              className={`flex aspect-square items-center justify-center rounded-full border-2 text-sm font-bold ${
-                on ? 'border-accent bg-accent text-bg' : last ? 'border-dashed border-ok text-ok' : 'border-line2 text-dis'
-              }`}
-            >
-              {on ? <Check size={18} strokeWidth={3} /> : last ? <Gift size={18} /> : i + 1}
+        <div className={`relative mt-4 grid grid-cols-5 ${compact ? 'gap-2' : 'gap-2.5 sm:gap-3'}`} aria-label={`${loyalty.stamps} de ${loyalty.goal} selos`}>
+          {Array.from({ length: loyalty.goal }, (_, i) => {
+            const on = i < loyalty.stamps;
+            const last = i === loyalty.goal - 1;
+            return (
+              <span
+                key={i}
+                className={`mx-auto flex aspect-square w-full max-w-[52px] items-center justify-center rounded-full ${
+                  on ? 'bg-white text-[#0A6CD6] shadow-[0_2px_6px_rgba(0,30,80,0.25)]' : last ? 'border-2 border-dashed border-[#FFD60A] text-[#FFD60A]' : 'border-[1.5px] border-white/35 bg-white/10'
+                }`}
+              >
+                {on ? <Droplet size={18} fill="currentColor" strokeWidth={0} /> : last ? <Gift size={18} strokeWidth={2} /> : null}
+              </span>
+            );
+          })}
+        </div>
+        <div className="relative mt-4 flex items-center gap-3 border-t border-white/20 pt-3">
+          <p className="min-w-0 flex-1 text-subhead font-medium leading-snug">{headline}</p>
+          {loyalty.rewards > 0 && (
+            <span className="flex min-h-[28px] shrink-0 items-center gap-1 rounded-full bg-white px-3 text-footnote font-bold text-[#0A6CD6]">
+              <Gift size={14} strokeWidth={2.4} /> {loyalty.rewards} grátis
             </span>
-          );
-        })}
+          )}
+        </div>
       </div>
-      {!compact && <p className="px-5 pb-5 text-sm text-muted">A cada lavagem concluída você ganha 1 selo. Completou {loyalty.goal}? A próxima lavagem (serviço principal) é por nossa conta.</p>}
+      {!compact && (
+        <p className="mt-3 px-4 text-footnote text-muted">
+          A cada lavagem concluída você ganha 1 selo. Completou {loyalty.goal}? A próxima lavagem (serviço principal) é por nossa conta.
+        </p>
+      )}
     </div>
   );
 }
@@ -103,17 +148,15 @@ export function VehicleRow({ v, right, onClick, selected }: { v: Vehicle; right?
     <>
       <Plate plate={v.plate} size="sm" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-lg font-bold">{v.model || 'Carro'}</p>
-        <p className="truncate text-sm text-muted">
-          {[v.color, sizeLabel(v.size)].filter(Boolean).join(' · ')}
-        </p>
+        <p className="truncate text-body font-semibold">{v.model || 'Carro'}</p>
+        <p className="truncate text-subhead text-muted">{[v.color, sizeLabel(v.size)].filter(Boolean).join(' · ')}</p>
       </div>
       {right}
     </>
   );
-  const cls = `flex w-full min-w-0 items-center gap-3 rounded-[20px] border p-4 text-left transition ${selected ? 'border-accent bg-tint' : 'border-line bg-surface'}`;
+  const cls = `card flex w-full min-w-0 items-center gap-3 p-4 text-left ring-2 transition-[box-shadow] duration-200 ${selected ? 'ring-accent' : 'ring-transparent'}`;
   return onClick ? (
-    <button type="button" onClick={onClick} className={`${cls} active:scale-[0.99]`} role="radio" aria-checked={!!selected}>
+    <button type="button" onClick={onClick} className={`${cls} active:opacity-80`} role="radio" aria-checked={!!selected}>
       {body}
     </button>
   ) : (
@@ -169,7 +212,7 @@ export function VehicleSheet({
       <div className="grid gap-4">
         <Field label="Placa *" hint="Padrão antigo (ABC-1234) ou Mercosul (ABC1D23)">
           <input
-            className="input font-mono uppercase tracking-[0.08em]"
+            className="input font-mono font-semibold uppercase tracking-[0.08em]"
             autoCapitalize="characters"
             autoComplete="off"
             placeholder="ABC1D23"

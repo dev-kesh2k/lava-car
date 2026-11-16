@@ -19,13 +19,13 @@ function Calendar({ today, value, onChange, schedule }: { today: string; value: 
   return (
     <div className="card p-4 sm:p-5">
       <div className="mb-3 flex items-center justify-between">
-        <button className="icon-btn h-11 w-11 border-transparent bg-transparent disabled:opacity-30" onClick={() => shift(-1)} disabled={month <= today.slice(0, 7)} aria-label="Mês anterior">
+        <button className="bar-btn disabled:opacity-30" onClick={() => shift(-1)} disabled={month <= today.slice(0, 7)} aria-label="Mês anterior">
           <ChevronLeft size={22} />
         </button>
-        <p className="font-display text-xl font-bold uppercase">
+        <p className="text-body font-semibold first-letter:uppercase">
           {MONTHS[m - 1]} {y}
         </p>
-        <button className="icon-btn h-11 w-11 border-transparent bg-transparent disabled:opacity-30" onClick={() => shift(1)} disabled={month >= max.slice(0, 7)} aria-label="Próximo mês">
+        <button className="bar-btn disabled:opacity-30" onClick={() => shift(1)} disabled={month >= max.slice(0, 7)} aria-label="Próximo mês">
           <ChevronRight size={22} />
         </button>
       </div>
@@ -51,8 +51,8 @@ function Calendar({ today, value, onChange, schedule }: { today: string; value: 
               onClick={() => onChange(day)}
               aria-label={fmtLong(day)}
               aria-pressed={sel}
-              className={`mx-auto flex aspect-square w-full max-w-[48px] items-center justify-center rounded-xl text-base font-medium transition ${
-                sel ? 'bg-accent font-bold text-bg' : day === today ? 'border border-accent text-ink' : disabled ? 'text-dis' : 'text-ink active:bg-surface2'
+              className={`mx-auto flex aspect-square w-full max-w-[48px] items-center justify-center rounded-full text-body transition-colors duration-200 ${
+                sel ? 'bg-brand font-semibold text-onaccent' : day === today ? 'font-semibold text-accent' : disabled ? 'text-dis' : 'text-ink active:bg-surface2'
               }`}
             >
               {i + 1}
@@ -167,7 +167,7 @@ export default function Book() {
         {chosen.total > 0 && (
           <div className="min-w-0 flex-1">
             <p className="text-sm text-muted">{duration(chosen.minutes)}</p>
-            <p className="font-display text-2xl font-extrabold leading-none text-accent">{brl(chosen.total)}</p>
+            <p className="text-title2 font-bold leading-tight tabular-nums text-ink">{brl(chosen.total)}</p>
           </div>
         )}
         {step < 3 ? (
@@ -191,7 +191,7 @@ export default function Book() {
       {step === 0 &&
         (!phone ? (
           <div className="card mx-auto flex max-w-md flex-col gap-4 p-6">
-            <p className="text-lg font-bold">Qual é o seu celular?</p>
+            <p className="text-body font-semibold">Qual é o seu celular?</p>
             <p className="-mt-2 text-muted">Sem cadastro: seu celular guarda a garagem, as lavagens e o cartão fidelidade.</p>
             <input className="input" type="tel" inputMode="tel" autoComplete="tel" placeholder="(45) 99123-4567" aria-label="Celular com DDD" value={phoneInput} onChange={(e) => setPhoneInput(maskPhone(e.target.value))} />
             <FormError message={err} />
@@ -237,11 +237,11 @@ export default function Book() {
                     aria-checked={on}
                     disabled={price === null}
                     onClick={() => setMainId(s.id)}
-                    className={`flex items-center gap-4 rounded-[20px] border p-4 text-left transition active:scale-[0.99] disabled:opacity-40 ${on ? 'border-accent bg-tint' : 'border-line bg-surface'}`}
+                    className={`card flex items-center gap-4 p-4 text-left ring-2 transition-[box-shadow,opacity] duration-200 active:opacity-80 disabled:opacity-40 ${on ? 'ring-accent' : 'ring-transparent'}`}
                   >
                     <ServiceIcon icon={s.icon} />
                     <div className="min-w-0 flex-1">
-                      <p className="text-lg font-bold">{s.name}</p>
+                      <p className="text-body font-semibold">{s.name}</p>
                       {s.description && <p className="text-sm text-muted">{s.description}</p>}
                       <p className="mt-1 text-sm text-soft">
                         {duration(s.durationMin)} · <span className="font-bold text-accent">{price === null ? 'Indisponível para o porte' : brl(price)}</span>
@@ -266,7 +266,7 @@ export default function Book() {
                     role="checkbox"
                     aria-checked={on}
                     onClick={() => setAddons(on ? addons.filter((a) => a !== s.id) : [...addons, s.id])}
-                    className={`flex items-center gap-4 rounded-[20px] border p-4 text-left transition active:scale-[0.99] ${on ? 'border-accent bg-tint' : 'border-line bg-surface'}`}
+                    className={`card flex items-center gap-4 p-4 text-left ring-2 transition-[box-shadow,opacity] duration-200 active:opacity-80 ${on ? 'ring-accent' : 'ring-transparent'}`}
                   >
                     <ServiceIcon icon={s.icon} size="sm" />
                     <div className="min-w-0 flex-1">
@@ -314,8 +314,8 @@ export default function Book() {
                     aria-checked={time === s.time}
                     disabled={!s.available}
                     onClick={() => setTime(s.time)}
-                    className={`min-h-[52px] rounded-2xl border text-base font-bold transition ${
-                      time === s.time ? 'border-accent bg-accent text-bg' : s.available ? 'border-line bg-surface text-ink active:scale-95' : 'border-line/50 bg-transparent text-dis line-through'
+                    className={`min-h-[48px] rounded-cell text-body font-semibold tabular-nums transition-colors duration-200 ${
+                      time === s.time ? 'bg-brand text-onaccent' : s.available ? 'bg-surface text-ink shadow-[var(--shadow-card)] active:opacity-70' : 'bg-transparent text-dis line-through'
                     }`}
                   >
                     {s.time}
@@ -350,7 +350,7 @@ export default function Book() {
               </div>
               <div className="flex items-center justify-between gap-4 px-5 py-4">
                 <span className="font-bold">Total</span>
-                <span className="font-display text-2xl font-extrabold text-accent">{brl(chosen.total)}</span>
+                <span className="text-title2 font-bold tabular-nums">{brl(chosen.total)}</span>
               </div>
             </section>
             <section>
@@ -368,8 +368,8 @@ export default function Book() {
           <section>
             <h2 className="h2 mb-3">Pagamento</h2>
             <div className="flex flex-col gap-3" role="radiogroup" aria-label="Forma de pagamento">
-              <div className="flex items-center gap-4 rounded-[20px] border border-accent bg-tint p-4" role="radio" aria-checked>
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface2 text-accent">
+              <div className="card flex items-center gap-4 p-4 ring-2 ring-accent" role="radio" aria-checked>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] bg-[#34C759] text-white">
                   <Store size={22} />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -379,8 +379,8 @@ export default function Book() {
                 <Radio on />
               </div>
               {/* Pix antecipado: preparado no backend, liga quando houver gateway (config.pixEnabled). */}
-              <div className="flex items-center gap-4 rounded-[20px] border border-line bg-surface p-4 opacity-50" role="radio" aria-checked={false} aria-disabled>
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface2 text-muted">
+              <div className="card flex items-center gap-4 p-4 opacity-50" role="radio" aria-checked={false} aria-disabled>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] bg-surface2 text-muted">
                   <QrCode size={22} />
                 </span>
                 <span className="min-w-0 flex-1">

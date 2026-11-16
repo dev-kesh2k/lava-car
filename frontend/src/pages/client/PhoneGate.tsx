@@ -16,11 +16,11 @@ export default function PhoneGate({ onSubmit, text, button }: { onSubmit: (phone
 
   return (
     <form onSubmit={submit} className="card mx-auto flex max-w-md flex-col gap-4 p-6">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-tint2 text-accent">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-tint text-accent">
         <Smartphone size={26} />
       </div>
       <div>
-        <p className="text-lg font-bold">Qual é o seu celular?</p>
+        <p className="text-body font-semibold">Qual é o seu celular?</p>
         <p className="mt-1 text-muted">{text || 'Use o mesmo número informado no agendamento para ver suas lavagens.'}</p>
       </div>
       <input
