@@ -1,9 +1,10 @@
 ## O que muda
 
 ## Como testar
-- [ ] `npm run check`
+- [ ] `cd backend && npm test`
+- [ ] `cd frontend && npx vite build --base /lava-car/`
 - [ ] Testado no celular (tela pequena)
 
 ## Banco
 - [ ] Sem migração
-- [ ] Migração nova em `supabase/migrations` (RLS conferido)
+- [ ] Migração Prisma nova em `backend/prisma/migrations`
