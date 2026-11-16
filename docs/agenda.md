@@ -16,3 +16,6 @@ Implementado duas vezes, de propósito:
 
 ## Fuso horário
 `opening_hours` é local da loja (`tenants.timezone`, padrão `America/Sao_Paulo`). O app converte com `zonedTimeToUtc` (`src/lib/timezone.ts`) e o banco com `at time zone`.
+
+## Cliente avulso
+`open_walk_in` não bloqueia por capacidade: o carro já está no pátio. Ele entra como `WAITING` com início agora e passa a ocupar box na grade dos próximos clientes.
