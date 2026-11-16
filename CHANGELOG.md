@@ -13,3 +13,6 @@
 
 ### Fase 4 — Dono
 - Painel gerencial, matriz de preços, comissões semanais e fluxo de caixa.
+
+### Fase 5 — Automações e PWA
+- Pix com confirmação por webhook, Web Push de carro pronto, manifest e service worker.
