@@ -1,37 +1,38 @@
 name: Testes
 
-# Tipos, lint, testes e build em cada push e pull request.
+# Regras do backend, checagem dos arquivos e build do frontend em cada push e pull request.
 on:
   push:
     branches: [main]
   pull_request:
 
 jobs:
-  frontend:
+  backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - name: Tipos
-        run: npx tsc -b
-      - name: Lint
-        run: npm run lint
-      - name: Testes
+          node-version: 22
+      - run: npm ci --ignore-scripts
+      - name: Sintaxe
+        run: npm run build
+      - name: Testes das regras
         run: npm test
-      - name: Build (PWA)
-        run: npx vite build
 
-  edge-functions:
+  frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v2
+      - uses: actions/setup-node@v4
         with:
-          deno-version: v2.x
-      - name: Checagem de tipos das Edge Functions
-        working-directory: supabase/functions
-        run: deno check create-pix/index.ts mp-webhook/index.ts notify-status/index.ts
+          node-version: 22
+      - run: npm ci
+      - name: Tipos e build
+        run: npx tsc -b && npx vite build --base /lava-car/
