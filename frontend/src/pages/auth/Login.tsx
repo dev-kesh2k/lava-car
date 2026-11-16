@@ -38,7 +38,7 @@ export default function AdminLogin() {
         <Logo />
         <p className="mt-10 text-subhead font-semibold text-accent">Área da equipe</p>
         <h1 className="h1 mt-1">Entrar</h1>
-        <p className="mt-2 text-base text-muted">Pátio, agenda e balcão para os operadores; painel, preços, comissões e caixa para o dono.</p>
+        <p className="mt-2 text-callout text-muted">Pátio, agenda e balcão para os operadores; painel, preços, comissões e caixa para o dono.</p>
         <form onSubmit={submit} className="mt-8 flex flex-col gap-4">
           <IconInput icon={Mail} type="email" inputMode="email" placeholder="E-mail" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required aria-label="E-mail" />
           <PasswordInput icon={Lock} placeholder="Senha" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required aria-label="Senha" />
@@ -47,7 +47,7 @@ export default function AdminLogin() {
             {busy ? 'Entrando…' : 'Entrar'}
           </button>
         </form>
-        <Link to="/" className="mt-6 flex min-h-[48px] items-center justify-center text-base text-soft">
+        <Link to="/" className="mt-6 flex min-h-[48px] items-center justify-center text-body text-accent active:opacity-50">
           Voltar para o app do cliente
         </Link>
       </div>

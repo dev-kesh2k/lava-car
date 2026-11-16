@@ -53,7 +53,7 @@ function DayBars({ days, today }: { days: Dash['days']; today: string }) {
       <div className="mb-3 min-h-[3rem]" aria-live="polite">
         {f && (
           <>
-            <p className="text-sm text-muted">
+            <p className="text-footnote text-muted">
               {fmtDate(f.day)} · {f.cars} {f.cars === 1 ? 'carro' : 'carros'}
             </p>
             <p className="text-title2 font-bold tabular-nums">{brl(f.revenueCents)}</p>
@@ -80,7 +80,7 @@ function DayBars({ days, today }: { days: Dash['days']; today: string }) {
         ))}
       </div>
       {days.length > 0 && (
-        <div className="mt-2 flex justify-between text-sm text-muted">
+        <div className="mt-2 flex justify-between text-footnote text-muted">
           <span>{dayNum(days[0].day)}</span>
           <span>{dayNum(days[days.length - 1].day)}</span>
         </div>
@@ -156,8 +156,8 @@ export default function Dashboard() {
             {data.top.map((t) => (
               <div key={t.name}>
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="min-w-0 truncate font-bold">{t.name}</span>
-                  <span className="shrink-0 text-sm text-muted">
+                  <span className="min-w-0 truncate font-semibold">{t.name}</span>
+                  <span className="shrink-0 text-footnote text-muted">
                     {t.qty}× · {brl(t.revenueCents)}
                   </span>
                 </div>

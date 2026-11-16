@@ -93,23 +93,23 @@ export default function AdminFeedback() {
           {data.feedback.map((f) => (
             <div key={f.id} className={`card p-5 ${f.read ? '' : 'border-accent/60'}`}>
               <div className="flex flex-wrap items-center gap-2">
-                <span className={`rounded-full px-3 py-1 text-sm font-bold ${KIND[f.kind].cls}`}>{KIND[f.kind].label}</span>
-                {!f.read && <span className="text-sm font-bold text-accent">Novo</span>}
-                <span className="ml-auto text-sm text-muted">{fmtDateTime(f.createdAt)}</span>
+                <span className={`rounded-full px-3 py-1 text-subhead font-semibold ${KIND[f.kind].cls}`}>{KIND[f.kind].label}</span>
+                {!f.read && <span className="text-subhead font-semibold text-accent">Novo</span>}
+                <span className="ml-auto text-footnote text-muted">{fmtDateTime(f.createdAt)}</span>
               </div>
               <p className="mt-3 whitespace-pre-wrap break-words">{f.message}</p>
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-footnote text-muted">
                 {f.name || 'Anônimo'}
                 {f.phone && ` · ${f.phone}`}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {f.phone && (
-                  <a className="btn-secondary min-h-[44px] px-4 text-sm" href={waLink(f.phone, `Olá${f.name ? `, ${f.name.split(' ')[0]}` : ''}! Recebemos seu feedback no app do lava-car.`)} target="_blank" rel="noreferrer">
+                  <a className="btn-secondary min-h-[44px] px-4 text-subhead" href={waLink(f.phone, `Olá${f.name ? `, ${f.name.split(' ')[0]}` : ''}! Recebemos seu feedback no app do lava-car.`)} target="_blank" rel="noreferrer">
                     <MessageCircle size={18} /> Responder
                   </a>
                 )}
                 {!f.read && (
-                  <button className="btn-secondary min-h-[44px] px-4 text-sm" onClick={() => markRead(f)}>
+                  <button className="btn-secondary min-h-[44px] px-4 text-subhead" onClick={() => markRead(f)}>
                     <Check size={18} /> Marcar como lido
                   </button>
                 )}
@@ -129,14 +129,14 @@ export default function AdminFeedback() {
             <div key={r.id} className="card p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <Stars value={r.rating} size={18} />
-                <span className="text-sm text-muted">{fmtDateTime(r.createdAt)}</span>
+                <span className="text-footnote text-muted">{fmtDateTime(r.createdAt)}</span>
               </div>
               {r.comment && <p className="mt-3 whitespace-pre-wrap break-words">“{r.comment}”</p>}
-              <p className="mt-2 text-sm text-muted">
+              <p className="mt-2 text-footnote text-muted">
                 {r.order.clientName || 'Cliente'} · {r.order.items.map((i) => i.name).join(' + ')} · {r.order.model || r.order.plate} · OS {r.order.number} de {fmtDate(r.order.date)}
               </p>
               {r.rating <= 3 && r.order.clientPhone && (
-                <a className="btn-secondary mt-3 min-h-[44px] px-4 text-sm" href={waLink(r.order.clientPhone, 'Olá! Vimos sua avaliação no app do lava-car e queremos entender o que podemos melhorar.')} target="_blank" rel="noreferrer">
+                <a className="btn-secondary mt-3 min-h-[44px] px-4 text-subhead" href={waLink(r.order.clientPhone, 'Olá! Vimos sua avaliação no app do lava-car e queremos entender o que podemos melhorar.')} target="_blank" rel="noreferrer">
                   <MessageCircle size={18} /> Falar com o cliente
                 </a>
               )}
