@@ -36,3 +36,10 @@ update public.profiles set role = 'ADMIN' where email = 'voce@exemplo.com';
 | `src/api` | Chamadas ao Supabase |
 | `src/features` | Telas por área: cliente, pátio e administração |
 | `docs/` | Arquitetura, banco, pagamentos, PWA e deploy |
+
+## Testes
+
+```bash
+npm test          # Vitest
+npm run check     # tipos + lint + testes (o mesmo do CI)
+```
