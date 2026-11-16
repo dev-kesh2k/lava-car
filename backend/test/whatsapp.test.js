@@ -107,3 +107,21 @@ test('eventos escolhidos e mensagem de carro pronto', () => {
   const msg = wa.clientMessage('ready', { clientName: 'Ana Souza', model: 'Onix', plate: 'abc1d23', id: 'x' }, { appUrl: '' });
   assert.equal(msg, 'Olá Ana, seu Onix placa ABC1D23 já está limpo e pronto para retirada!');
 });
+
+test('mudança de etapa: avisa só quando avança', () => {
+  assert.equal(wa.statusEvent('scheduled', 'waiting'), 'arrived');
+  assert.equal(wa.statusEvent('waiting', 'washing'), 'washing');
+  assert.equal(wa.statusEvent('washing', 'finishing'), 'finishing');
+  assert.equal(wa.statusEvent('finishing', 'ready'), 'ready');
+  assert.equal(wa.statusEvent('ready', 'delivered'), 'delivered');
+  assert.equal(wa.statusEvent('washing', 'waiting'), null);
+  assert.equal(wa.statusEvent('ready', 'finishing'), null);
+});
+
+test('mensagens das etapas citam o carro e a placa', () => {
+  const o = { clientName: 'Maria Souza', model: 'Onix', plate: 'ABC1D23', id: 'x', items: [] };
+  const s = { studioName: 'Lava Car', appUrl: '' };
+  assert.match(wa.clientMessage('arrived', o, s), /Olá, Maria! Seu Onix placa ABC1D23 chegou ao Lava Car/);
+  assert.match(wa.clientMessage('washing', o, s), /Começamos a lavar seu Onix placa ABC1D23/);
+  assert.match(wa.clientMessage('finishing', o, s), /acabamento/);
+});
