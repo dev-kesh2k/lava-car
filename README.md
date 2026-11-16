@@ -43,3 +43,12 @@ update public.profiles set role = 'ADMIN' where email = 'voce@exemplo.com';
 npm test          # Vitest
 npm run check     # tipos + lint + testes (o mesmo do CI)
 ```
+
+## Documentação
+
+- [Arquitetura](docs/arquitetura.md)
+- [Banco de dados e RLS](docs/banco-de-dados.md)
+- [Agenda e capacidade de boxes](docs/agenda.md)
+- [Pagamentos Pix](docs/pagamentos.md)
+- [PWA e notificações](docs/pwa.md)
+- [Deploy](docs/deploy.md)
