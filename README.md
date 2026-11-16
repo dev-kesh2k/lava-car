@@ -25,3 +25,14 @@ Abra `http://localhost:5173/entrar?loja=lava-car-demo`. O primeiro usuário entr
 ```sql
 update public.profiles set role = 'ADMIN' where email = 'voce@exemplo.com';
 ```
+
+## Estrutura
+
+| Pasta | O que tem |
+|---|---|
+| `supabase/migrations` | Schema, RLS, regras de agenda, comissões e relatórios |
+| `supabase/functions` | Pix (`create-pix`), webhook do Mercado Pago (`mp-webhook`) e Web Push (`notify-status`) |
+| `src/lib` | Regras puras com testes (horários livres, preços, fuso, placa, fidelidade...) |
+| `src/api` | Chamadas ao Supabase |
+| `src/features` | Telas por área: cliente, pátio e administração |
+| `docs/` | Arquitetura, banco, pagamentos, PWA e deploy |
