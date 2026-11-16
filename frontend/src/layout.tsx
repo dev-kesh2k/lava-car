@@ -160,24 +160,28 @@ export function TabsLayout({ tabs, side, admin }: { tabs: Tab[]; side?: Tab[]; a
         </div>
       </aside>
 
-      <main className="mx-auto w-full max-w-5xl px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[calc(env(safe-area-inset-top)+3rem)] min-[380px]:px-5 md:px-10 md:pb-12 md:pt-14">
+      <main className="mx-auto w-full max-w-5xl px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-[calc(env(safe-area-inset-top)+3rem)] min-[380px]:px-5 md:px-10 md:pb-12 md:pt-14">
         <Outlet />
       </main>
 
-      <nav aria-label="Menu" className="glass hairline-t fixed inset-x-0 bottom-0 z-30 pb-[env(safe-area-inset-bottom)] md:hidden">
-        <div className="mx-auto flex max-w-xl">
+      {/* Barra do celular igual à do Dieta X: pílula de vidro flutuante, só ícones, item ativo com fundo tingido. */}
+      <nav
+        aria-label="Menu"
+        className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] z-30 rounded-[1.75rem] border border-white/50 bg-surface/90 px-2 py-2 shadow-[0_12px_32px_-10px_rgb(var(--accent)/0.35),inset_0_1px_0_rgba(255,255,255,0.35)] backdrop-blur-2xl backdrop-saturate-[1.8] dark:border-white/10 md:hidden"
+      >
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-1">
           {tabs.map((t) => (
             <TabLink
               key={t.to}
               tab={t}
               className={(isActive) =>
-                `flex min-h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-[3px] px-0.5 pt-1 text-[11px] font-medium tracking-[0.1px] transition-colors duration-200 ${
-                  isActive ? 'text-accent' : 'text-[rgb(var(--muted))]'
+                `flex h-12 min-w-0 flex-1 items-center justify-center rounded-2xl transition active:scale-95 ${
+                  isActive ? 'bg-accent/15 text-accent' : 'text-ink/60 hover:text-ink'
                 }`
               }
             >
-              <t.icon size={25} strokeWidth={1.75} />
-              <span className="max-w-full truncate leading-none">{t.label}</span>
+              <t.icon size={24} strokeWidth={1.75} aria-hidden="true" />
+              <span className="sr-only">{t.label}</span>
             </TabLink>
           ))}
         </div>
