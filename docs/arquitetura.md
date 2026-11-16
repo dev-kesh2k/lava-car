@@ -20,3 +20,10 @@ Supabase
 2. **RLS em tudo.** Não existe backend próprio: a segurança vem das políticas. Funções `SECURITY DEFINER` só onde o cliente precisa de algo além do que pode ler (ex.: horários ocupados sem dados pessoais).
 3. **Realtime no lugar de F5.** O pátio e o cliente assinam `appointments_os`; o RLS decide quem recebe cada evento.
 4. **Mobile-first.** Botões grandes no pátio (`size="xl"`), folhas de baixo para cima no celular, barra de navegação inferior.
+
+## Papéis
+| Papel | Vê | Faz |
+|---|---|---|
+| CUSTOMER | próprios carros, OS, vistoria e cartão | agenda, cancela, paga Pix |
+| OPERATOR | tudo da loja (menos caixa e relatórios) | pátio, OS avulsa, vistoria, pagamento no balcão |
+| ADMIN | tudo da loja | preços, equipe, comissões, caixa, configurações |
