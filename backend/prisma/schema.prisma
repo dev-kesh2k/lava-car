@@ -1,0 +1,255 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Equipe do lava-car (login em /admin/login). O cliente não tem conta: é identificado pelo celular.
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  phone         String   @default("")
+  passwordHash  String
+  role          String   @default("operator") // admin | operator
+  commissionPct Int      @default(0) // % sobre o valor das OS que a pessoa lavou
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  orders        Order[]
+  notifications Notification[]
+}
+
+// Box de lavagem: cada box lava um carro por vez. Capacidade da agenda = boxes ativos.
+model Box {
+  id        String   @id @default(cuid())
+  name      String
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  orders Order[]
+}
+
+// Carro da "garagem" do cliente (phoneKey) ou de um cliente avulso do balcão (phoneKey vazio).
+model Vehicle {
+  id        String   @id @default(cuid())
+  phoneKey  String   @default("")
+  plate     String // só letras e números, maiúsculo (ABC1D23 / ABC1234)
+  model     String   @default("")
+  color     String   @default("")
+  size      String // small | medium | large | pickup
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@unique([phoneKey, plate])
+  @@index([plate])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  kind        String   @default("main") // main | addon
+  durationMin Int
+  icon        String   @default("droplet")
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  prices ServicePrice[]
+  items  OrderItem[]
+}
+
+// Matriz de preços: um valor por porte do veículo (sem linha = serviço indisponível para o porte).
+model ServicePrice {
+  serviceId  String
+  service    Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  size       String
+  priceCents Int
+
+  @@id([serviceId, size])
+}
+
+// Agendamento e Ordem de Serviço são a mesma linha: nasce agendada (app) ou já no pátio (balcão).
+model Order {
+  id             String    @id @default(cuid())
+  number         Int       @unique @default(autoincrement())
+  origin         String    @default("app") // app | counter
+  phoneKey       String    @default("")
+  clientName     String    @default("")
+  clientPhone    String    @default("")
+  vehicleId      String
+  vehicle        Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  plate          String
+  model          String    @default("")
+  color          String    @default("")
+  size           String
+  boxId          String?
+  box            Box?      @relation(fields: [boxId], references: [id], onDelete: SetNull)
+  date           String // YYYY-MM-DD no fuso da loja
+  time           String // HH:MM
+  durationMin    Int
+  totalCents     Int // soma dos itens
+  discountCents  Int       @default(0) // lavagem grátis do cartão fidelidade
+  status         String    @default("scheduled") // scheduled | waiting | washing | finishing | ready | delivered | cancelled
+  paymentMethod  String    @default("onsite") // onsite | pix (Pix fica desligado até integrar um gateway)
+  paymentStatus  String    @default("pending") // pending | paid
+  paidMethod     String    @default("") // cash | pix | card
+  paidAt         DateTime?
+  employeeId     String?
+  employee       User?     @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  notes          String    @default("")
+  cancelReason   String    @default("")
+  arrivedAt      DateTime?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  finishedDay    String    @default("") // dia em que ficou Pronto (comissões e relatórios)
+  deliveredAt    DateTime?
+  cancelledAt    DateTime?
+  stampedAt      DateTime? // selo de fidelidade já carimbado
+  rewardUsed     Boolean   @default(false)
+  readyNotified  Boolean   @default(false)
+  reminderSentAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  items       OrderItem[]
+  photos      InspectionPhoto[]
+  review      Review?
+  cashEntries CashEntry[]
+
+  @@index([date])
+  @@index([boxId, date])
+  @@index([phoneKey])
+  @@index([status])
+  @@index([finishedDay])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  serviceId   String?
+  service     Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  kind        String
+  name        String
+  priceCents  Int
+  durationMin Int
+
+  @@index([orderId])
+}
+
+// Vistoria de entrada: até 4 fotos (reduzidas no navegador) e as avarias marcadas.
+model InspectionPhoto {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  mime      String
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model Inspection {
+  orderId   String   @id
+  damages   Json     @default("[]") // [{ area, type, note }]
+  notes     String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+// Cartão fidelidade por celular: selos até a meta; ao completar vira 1 lavagem grátis.
+model LoyaltyCard {
+  phoneKey    String   @id
+  stamps      Int      @default(0)
+  rewards     Int      @default(0)
+  totalWashes Int      @default(0)
+  updatedAt   DateTime @updatedAt
+}
+
+// Fluxo de caixa: entrada automática quando a OS é paga + despesas lançadas à mão.
+model CashEntry {
+  id          String   @id @default(cuid())
+  type        String // income | expense
+  category    String
+  description String   @default("")
+  amountCents Int
+  method      String   @default("")
+  day         String // YYYY-MM-DD
+  orderId     String?
+  order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@index([day])
+  @@index([orderId])
+}
+
+// Perfil do cliente (sem conta): identificado pelo celular. O id opaco vai nas URLs, nunca o número.
+model ClientProfile {
+  id            String   @id @default(cuid())
+  phoneKey      String   @unique
+  name          String   @default("")
+  avatar        Bytes?
+  avatarMime    String   @default("")
+  avatarVersion Int      @default(0)
+  updatedAt     DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  kind      String // elogio | sugestao | reclamacao | outro
+  message   String
+  name      String   @default("")
+  phoneKey  String   @default("")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model WhatsAppLog {
+  id        String   @id @default(cuid())
+  to        String
+  event     String
+  text      String
+  status    String // sent | failed
+  error     String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String   @default("")
+  link      String   @default("")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Setting {
+  key   String @id
+  value String
+}
