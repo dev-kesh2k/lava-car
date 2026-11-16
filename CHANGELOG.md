@@ -7,3 +7,6 @@
 
 ### Fase 2 — Cliente
 - Login por WhatsApp (OTP), e-mail ou Google; garagem virtual; wizard de agendamento em 4 passos; acompanhamento ao vivo; cartão fidelidade.
+
+### Fase 3 — Pátio
+- Kanban em tempo real, OS avulsa, vistoria com até 4 fotos e avarias, aviso no WhatsApp.
