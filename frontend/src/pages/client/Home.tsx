@@ -73,7 +73,8 @@ export default function Home() {
       </div>
 
       <section className="mt-8">
-        <h2 className="h2 mb-3 px-1">Serviços</h2>
+        <h2 className="h2 px-1">Serviços</h2>
+        <p className="mb-4 mt-1 px-1 text-footnote text-muted">Preços a partir de: o valor final depende do porte do carro.</p>
         {services.loading && !services.data && <Loading />}
         {services.error && <ErrorBox message={services.error} onRetry={services.reload} />}
         {services.data && (
@@ -91,10 +92,7 @@ export default function Home() {
                           <p className="text-body font-medium">{s.name}</p>
                           <p className="text-footnote text-muted">{s.description || duration(s.durationMin)}</p>
                         </div>
-                        <p className="shrink-0 text-right text-caption text-muted">
-                          a partir de
-                          <span className="block text-body font-semibold text-ink">{brl(minPrice(s))}</span>
-                        </p>
+                        <p className="shrink-0 whitespace-nowrap text-right text-body font-semibold tabular-nums">{brl(minPrice(s))}</p>
                       </div>
                     ))}
                   </div>

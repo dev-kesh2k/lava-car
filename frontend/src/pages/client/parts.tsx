@@ -58,13 +58,17 @@ export function Tracker({ order }: { order: Order }) {
               >
                 <I size={17} strokeWidth={2.2} />
               </span>
-              <span className={`mt-1.5 max-w-full text-[clamp(10.5px,3.1vw,12px)] leading-tight ${i === idx ? 'font-semibold text-ink' : reached ? 'text-soft' : 'text-muted'}`}>
+              <span className={`mt-1.5 hidden max-w-full whitespace-nowrap text-caption tracking-[-0.2px] min-[380px]:block ${i === idx ? 'font-semibold text-ink' : reached ? 'text-soft' : 'text-muted'}`}>
                 {s.label}
               </span>
             </li>
           );
         })}
       </ol>
+      <p className="mt-2.5 text-footnote text-muted min-[380px]:hidden">
+        Etapa {Math.max(idx, 0) + 1} de {TRACK_STEPS.length} · <span className="font-semibold text-ink">{TRACK_STEPS[Math.max(idx, 0)].label}</span>
+        {!finished && TRACK_STEPS[idx + 1] ? ` · próxima: ${TRACK_STEPS[idx + 1].label}` : ''}
+      </p>
     </div>
   );
 }
@@ -148,8 +152,8 @@ export function VehicleRow({ v, right, onClick, selected }: { v: Vehicle; right?
     <>
       <Plate plate={v.plate} size="sm" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-body font-semibold">{v.model || 'Carro'}</p>
-        <p className="truncate text-subhead text-muted">{[v.color, sizeLabel(v.size)].filter(Boolean).join(' · ')}</p>
+        <p className="line-clamp-2 break-words text-body font-semibold leading-snug">{v.model || 'Carro'}</p>
+        <p className="mt-0.5 break-words text-footnote text-muted">{[v.color, sizeLabel(v.size)].filter(Boolean).join(' · ')}</p>
       </div>
       {right}
     </>

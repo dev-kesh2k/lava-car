@@ -5,7 +5,7 @@ import { api, inspectionPhotoUrl, useApi, type Loyalty, type Order } from '../..
 import { useSavedPhone } from '../../client';
 import PhoneGate from './PhoneGate';
 import { useConfig } from '../../config';
-import { ErrorBox, Field, FormError, Lightbox, Loading, PageHead, Plate, Sheet, Stars, StatusPill, toast } from '../../ui';
+import { ErrorBox, Field, FormError, Lightbox, Loading, PageHead, Plate, Sheet, Stars, StatusPill, toast, InfoRow } from '../../ui';
 import { brl, duration, fmtDate, formatPlate, isOpen, METHOD, sizeLabel, STATUS, WEEKDAYS_SHORT, waLink, weekdayOf } from '../../util';
 import { WhatsAppIcon } from '../../layout';
 import { LoyaltyCard, Tracker } from './parts';
@@ -106,18 +106,18 @@ export default function BookingDetail() {
         <div className="mb-5 flex items-start gap-3 rounded-card bg-okbg p-4 animate-pop-in">
           <CheckCircle2 className="mt-0.5 shrink-0 text-ok" />
           <div>
-            <p className="font-bold text-ok">Agendamento confirmado!</p>
-            <p className="text-sm text-soft">Te esperamos no horário. Acompanhe a lavagem por aqui: esta tela atualiza sozinha.</p>
+            <p className="font-semibold text-ok">Agendamento confirmado!</p>
+            <p className="text-subhead text-soft">Te esperamos no horário. Acompanhe a lavagem por aqui: esta tela atualiza sozinha.</p>
           </div>
         </div>
       )}
 
-      <section className="card p-5">
+      <section className="card p-4 min-[380px]:p-5">
         <div className="mb-5 flex items-center gap-3">
           <Plate plate={o.plate} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-body font-semibold">{o.model || 'Seu carro'}</p>
-            <p className="truncate text-sm text-muted">{[o.color, sizeLabel(o.size)].filter(Boolean).join(' · ')}</p>
+            <p className="truncate text-footnote text-muted">{[o.color, sizeLabel(o.size)].filter(Boolean).join(' · ')}</p>
           </div>
         </div>
         {o.status === 'cancelled' ? (
@@ -127,7 +127,7 @@ export default function BookingDetail() {
             <p className={`mb-4 text-title2 font-bold ${STATUS[o.status].text}`}>{STATUS[o.status].label}</p>
             <Tracker order={o} />
             {live && (
-              <p className="mt-4 flex items-center gap-2 text-sm text-muted">
+              <p className="mt-4 flex items-center gap-2 text-footnote text-muted">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-ok" /> Ao vivo · atualiza sozinho
               </p>
             )}
@@ -135,7 +135,7 @@ export default function BookingDetail() {
         )}
       </section>
 
-      <div className="card mt-5 divide-y divide-line">
+      <div className="list mt-6">
         {[
           ['Quando', `${WEEKDAYS_SHORT[weekdayOf(o.date)]}, ${fmtDate(o.date)} · ${o.time}`],
           ['Duração', `cerca de ${duration(o.durationMin)}`],
@@ -144,22 +144,21 @@ export default function BookingDetail() {
           ['Total', brl(o.dueCents)],
           ['Pagamento', o.paymentStatus === 'paid' ? `Pago (${METHOD[o.paidMethod] || o.paidMethod})` : 'No local, na retirada'],
         ].map(([k, v]) => (
-          <div key={k} className="flex items-start justify-between gap-4 px-5 py-4">
-            <span className="min-w-0 text-muted">{k}</span>
-            <span className="shrink-0 text-right font-medium">{v}</span>
-          </div>
+          <InfoRow key={k} label={k} strong={k === 'Total'}>
+            {v}
+          </InfoRow>
         ))}
         {o.cancelReason && o.status === 'cancelled' && (
-          <div className="px-5 py-4">
-            <p className="text-muted">Motivo</p>
+          <div className="cell flex-col items-start gap-1">
+            <p className="text-footnote text-muted">Motivo</p>
             <p className="mt-1">{o.cancelReason}</p>
           </div>
         )}
       </div>
 
       {photos.length > 0 && (
-        <section className="mt-5">
-          <h2 className="h2 mb-3">Vistoria de entrada</h2>
+        <section className="mt-8">
+          <h2 className="h2 mb-3 px-1">Vistoria de entrada</h2>
           <div className="grid grid-cols-4 gap-2">
             {photos.map((url, i) => (
               <button key={url} onClick={() => setPhoto(i)} className="aspect-square overflow-hidden rounded-[14px] bg-surface2" aria-label={`Foto ${i + 1} da vistoria`}>
@@ -171,14 +170,14 @@ export default function BookingDetail() {
       )}
 
       {o.status !== 'cancelled' && (
-        <div className="mt-5">
+        <div className="mt-8">
           <LoyaltyCard loyalty={data.loyalty} compact />
         </div>
       )}
 
       {o.review && (
-        <section className="card mt-5 p-4">
-          <p className="mb-1 font-bold">Sua avaliação</p>
+        <section className="card mt-8 p-4">
+          <p className="mb-1 font-semibold">Sua avaliação</p>
           <Stars value={o.review.rating} />
           {o.review.comment && <p className="mt-2 text-soft">{o.review.comment}</p>}
           {o.review.rating >= 4 && config?.googleReviewUrl && (
@@ -189,10 +188,10 @@ export default function BookingDetail() {
         </section>
       )}
 
-      <div className="mt-6 flex flex-col gap-3">
+      <div className="mt-8 flex flex-col gap-3">
         {store && (
           <a className="btn-secondary" href={waLink(store, `Olá! Sobre a lavagem do meu ${o.model || 'carro'} placa ${formatPlate(o.plate)} (OS ${o.number}).`)} target="_blank" rel="noreferrer">
-            <WhatsAppIcon size={20} /> Falar com a loja no WhatsApp
+            <WhatsAppIcon size={20} /> Conversar no WhatsApp
           </a>
         )}
         {canReview && (
@@ -235,7 +234,7 @@ export default function BookingDetail() {
             </button>
           ))}
         </div>
-        <p className="-mt-2 mb-4 text-center text-sm text-muted">{['', 'Muito ruim', 'Ruim', 'Regular', 'Boa', 'Excelente'][rating]}</p>
+        <p className="-mt-2 mb-4 text-center text-footnote text-muted">{['', 'Muito ruim', 'Ruim', 'Regular', 'Boa', 'Excelente'][rating]}</p>
         <Field label={rating <= 3 ? 'O que podemos melhorar? (opcional)' : 'Comentário (opcional)'}>
           <textarea className="input min-h-[100px]" maxLength={500} value={comment} onChange={(e) => setComment(e.target.value)} />
         </Field>

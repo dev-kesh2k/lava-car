@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, CarFront, Pencil, Plus, Trash2 } from 'lucide-react';
+import { CalendarPlus, CarFront, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react';
 import { api, useApi, type Vehicle } from '../../api';
 import { useSavedPhone } from '../../client';
 import PhoneGate from './PhoneGate';
-import { Empty, ErrorBox, Loading, PageHead, toast } from '../../ui';
+import { ActionSheet, Empty, ErrorBox, Loading, PageHead, toast } from '../../ui';
 import { formatPlate } from '../../util';
 import { VehicleRow, VehicleSheet } from './parts';
 
@@ -14,6 +14,7 @@ export default function Garage() {
   const { data, error, loading, reload } = useApi<{ vehicles: Vehicle[] }>(phone ? `/vehicles?phone=${encodeURIComponent(phone)}` : null);
   const [editing, setEditing] = useState<Vehicle | null>(null);
   const [open, setOpen] = useState(false);
+  const [menu, setMenu] = useState<Vehicle | null>(null);
 
   if (!phone)
     return (
@@ -41,7 +42,7 @@ export default function Garage() {
         subtitle={
           <span className="flex flex-wrap items-center gap-x-3">
             Celular {phone}
-            <button className="min-h-[44px] font-bold text-accent" onClick={() => setPhone('')}>
+            <button className="min-h-[44px] font-semibold text-accent" onClick={() => setPhone('')}>
               Trocar número
             </button>
           </span>
@@ -55,7 +56,7 @@ export default function Garage() {
               setOpen(true);
             }}
           >
-            <Plus size={20} /> <span className="hidden min-[380px]:inline">Carro</span>
+            <Plus size={20} /> Carro
           </button>
         }
       />
@@ -79,21 +80,13 @@ export default function Garage() {
             key={v.id}
             v={v}
             right={
-              <div className="-mr-2 flex shrink-0">
-                <button
-                  className="flex h-11 w-10 items-center justify-center text-accent active:opacity-50"
-                  aria-label={`Editar ${formatPlate(v.plate)}`}
-                  onClick={() => {
-                    setEditing(v);
-                    setOpen(true);
-                  }}
-                >
-                  <Pencil size={20} strokeWidth={1.75} />
-                </button>
-                <button className="flex h-11 w-10 items-center justify-center text-danger active:opacity-50" aria-label={`Remover ${formatPlate(v.plate)}`} onClick={() => remove(v)}>
-                  <Trash2 size={20} strokeWidth={1.75} />
-                </button>
-              </div>
+              <button
+                className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-surface2"
+                aria-label={`Opções de ${formatPlate(v.plate)}`}
+                onClick={() => setMenu(v)}
+              >
+                <MoreHorizontal size={22} />
+              </button>
             }
           />
         ))}
@@ -103,6 +96,19 @@ export default function Garage() {
           <CalendarPlus size={20} /> Agendar lavagem
         </Link>
       )}
+      <ActionSheet
+        open={!!menu}
+        onClose={() => setMenu(null)}
+        title={menu ? `${menu.model || 'Carro'} · ${formatPlate(menu.plate)}` : undefined}
+        actions={
+          menu
+            ? [
+                { label: 'Editar carro', icon: Pencil, onClick: () => (setEditing(menu), setOpen(true)) },
+                { label: 'Tirar da garagem', icon: Trash2, destructive: true, onClick: () => remove(menu) },
+              ]
+            : []
+        }
+      />
       <VehicleSheet open={open} onClose={() => setOpen(false)} phone={phone} vehicle={editing} onSaved={() => reload()} />
     </div>
   );
