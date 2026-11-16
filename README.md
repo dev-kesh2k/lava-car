@@ -52,3 +52,7 @@ npm run check     # tipos + lint + testes (o mesmo do CI)
 - [Pagamentos Pix](docs/pagamentos.md)
 - [PWA e notificações](docs/pwa.md)
 - [Deploy](docs/deploy.md)
+
+## Licença
+
+[MIT](LICENSE)
