@@ -31,3 +31,8 @@ Modelar o banco inteiro antes da interface (`supabase/migrations`).
 - Matriz de preços (serviço × porte).
 - Comissões por funcionário (% sobre o valor) e fechamento semanal.
 - Fluxo de caixa: entradas automáticas das OS pagas + despesas manuais.
+
+## Fase 5 — Automações, pagamentos e PWA
+- Pix automático: webhook muda a OS para PAGO.
+- Web Push quando o carro fica Pronto.
+- PWA: manifest, service worker, tela cheia e carregamento rápido.
