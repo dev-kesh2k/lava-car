@@ -25,3 +25,9 @@ Modelar o banco inteiro antes da interface (`supabase/migrations`).
 - OS avulsa (walk-in): placa, porte, serviço e direto para a fila.
 - Vistoria de entrada: até 4 fotos pela câmera + marcação de avarias.
 - Botão do WhatsApp no carro "Pronto": "Olá [Nome], seu [Modelo] placa [Placa] já está limpo e pronto para retirada!"
+
+## Fase 4 — Administrativo e financeiro (dono)
+- Dashboard: faturamento do dia/mês, carros lavados, ticket médio, serviços mais vendidos.
+- Matriz de preços (serviço × porte).
+- Comissões por funcionário (% sobre o valor) e fechamento semanal.
+- Fluxo de caixa: entradas automáticas das OS pagas + despesas manuais.
