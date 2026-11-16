@@ -11,7 +11,7 @@ function OrderRow({ o, onClick }: { o: Order; onClick: () => void }) {
   return (
     <button onClick={onClick} className="card flex w-full min-w-0 items-center gap-3 px-4 py-4 text-left transition active:scale-[0.99] sm:px-5">
       <div className="w-[3.2rem] shrink-0 text-center">
-        <p className="text-lg font-bold leading-tight">{o.time}</p>
+        <p className="text-body font-semibold leading-tight">{o.time}</p>
         <p className="text-xs text-muted">{duration(o.durationMin)}</p>
       </div>
       <span className={`w-1 shrink-0 self-stretch rounded-full ${STATUS[o.status].bar}`} />
@@ -83,13 +83,13 @@ export default function Agenda() {
               aria-selected={sel}
               aria-label={`${fmtShort(d)}${n ? `, ${n} lavagens` : ''}`}
               onClick={() => setDay(d)}
-              className={`relative flex min-h-[72px] min-w-0 flex-col items-center justify-center rounded-2xl border transition sm:min-h-[84px] ${
-                sel ? 'border-accent bg-accent text-bg' : d === today ? 'border-accent/60 bg-surface' : 'border-line bg-surface'
+              className={`relative flex min-h-[76px] min-w-0 flex-col items-center justify-center rounded-cell transition-colors duration-200 sm:min-h-[84px] ${
+                sel ? 'bg-brand text-onaccent' : d === today ? 'bg-surface text-accent shadow-[var(--shadow-card)]' : 'bg-surface shadow-[var(--shadow-card)]'
               } ${closed && !sel ? 'opacity-50' : ''}`}
             >
-              <span className={`text-[13px] sm:text-sm ${sel ? 'text-bg' : 'text-muted'}`}>{WEEKDAYS_SHORT[weekdayOf(d)]}</span>
-              <span className="text-[clamp(1.05rem,5vw,1.5rem)] font-bold leading-tight">{dayNum(d)}</span>
-              {n > 0 && <span className={`absolute bottom-1 text-[11px] font-bold ${sel ? 'text-bg' : 'text-accent'}`}>{n}</span>}
+              <span className={`text-[13px] sm:text-sm ${sel ? 'text-onaccent' : 'text-muted'}`}>{WEEKDAYS_SHORT[weekdayOf(d)]}</span>
+              <span className="text-[clamp(17px,5vw,22px)] font-semibold leading-tight tabular-nums">{dayNum(d)}</span>
+              {n > 0 && <span className={`absolute bottom-1 text-[11px] font-bold ${sel ? 'text-onaccent' : 'text-accent'}`}>{n}</span>}
             </button>
           );
         })}

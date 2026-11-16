@@ -36,7 +36,7 @@ export default function AdminLogin() {
     <div className="min-h-[100dvh]">
       <div className="mx-auto w-full max-w-md px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))]">
         <Logo />
-        <p className="mt-10 text-sm font-bold uppercase tracking-[0.12em] text-accent">Área da equipe</p>
+        <p className="mt-10 text-subhead font-semibold text-accent">Área da equipe</p>
         <h1 className="h1 mt-1">Entrar</h1>
         <p className="mt-2 text-base text-muted">Pátio, agenda e balcão para os operadores; painel, preços, comissões e caixa para o dono.</p>
         <form onSubmit={submit} className="mt-8 flex flex-col gap-4">

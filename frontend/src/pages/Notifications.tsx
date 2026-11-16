@@ -29,7 +29,7 @@ export default function Notifications() {
             onClick={() => n.link && nav(n.link)}
             className={`card flex items-start gap-3 p-4 text-left ${n.link ? 'active:scale-[0.99]' : 'cursor-default'}`}
           >
-            <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${n.read ? 'bg-line2' : 'bg-accent'}`} />
+            <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${n.read ? 'bg-line2' : 'bg-brand'}`} />
             <div className="min-w-0 flex-1">
               <p className="font-bold">{n.title}</p>
               {n.body && <p className="mt-0.5 break-words text-soft">{n.body}</p>}

@@ -52,7 +52,11 @@ export function WhatsAppButton({ o, compact }: { o: Order; compact?: boolean }) 
   if (!o.clientPhone) return null;
   return (
     <a
-      className={compact ? 'icon-btn h-12 w-12 shrink-0 border-[#25D366]/40' : 'btn-secondary border-[#25D366]/50'}
+      className={
+        compact
+          ? 'flex h-14 w-14 shrink-0 items-center justify-center rounded-cell bg-[#25D366]/15 transition-opacity active:opacity-60'
+          : 'flex min-h-[50px] items-center justify-center gap-2 rounded-cell bg-[#25D366]/15 px-5 text-body font-semibold text-ink transition-opacity active:opacity-60'
+      }
       href={waLink(o.clientPhone, readyMessage(o))}
       target="_blank"
       rel="noreferrer"
@@ -83,35 +87,43 @@ export function YardCard({ o, onOpen, onChanged }: { o: Order; onOpen: () => voi
   }
 
   return (
-    <div className="card min-w-0 p-4">
+    <div className="card relative min-w-0 overflow-hidden p-4">
+      <span className={`absolute inset-y-0 left-0 w-1 ${STATUS[o.status].bar}`} aria-hidden />
       <button className="block w-full min-w-0 text-left" onClick={onOpen}>
         <div className="flex items-start gap-3">
           <Plate plate={o.plate} />
           <div className="min-w-0 flex-1 text-right">
-            <p className="text-sm text-muted">OS {o.number}</p>
-            <p className="text-sm font-bold">{o.box?.name || 'Sem box'}</p>
+            <p className="text-footnote text-muted">OS {o.number}</p>
+            <p className="truncate text-subhead font-semibold">{o.box?.name || 'Sem box'}</p>
           </div>
         </div>
-        <p className="mt-3 truncate text-lg font-bold">
-          {o.model || 'Carro'} <span className="text-base font-normal text-muted">· {sizeLabel(o.size)}</span>
+        <p className="mt-3 truncate text-body font-semibold">
+          {o.model || 'Carro'} <span className="font-normal text-muted">· {sizeLabel(o.size)}</span>
         </p>
-        <p className="truncate text-sm text-soft">{o.items.map((i) => i.name).join(' + ')}</p>
-        <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-muted">
+        <p className="truncate text-subhead text-soft">{o.items.map((i) => i.name).join(' + ')}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-footnote text-muted">
           <span className="truncate">{o.clientName || 'Cliente avulso'}</span>
           <span>· {o.time}</span>
           {o.employee && <span>· {o.employee.name.split(' ')[0]}</span>}
-          <span className={`font-bold ${o.paymentStatus === 'paid' ? 'text-ok' : 'text-warn'}`}>· {o.paymentStatus === 'paid' ? 'Pago' : brl(o.dueCents)}</span>
-        </p>
+          <span className={`rounded-full px-2 py-0.5 font-semibold ${o.paymentStatus === 'paid' ? 'bg-okbg text-ok' : 'bg-warnbg text-warn'}`}>
+            {o.paymentStatus === 'paid' ? 'Pago' : brl(o.dueCents)}
+          </span>
+        </div>
       </button>
       <div className="mt-4 flex gap-2">
         {prev && (
-          <button className="icon-btn h-14 w-14 shrink-0" aria-label={`Voltar para ${STATUS[prev].label}`} disabled={busy} onClick={() => go(prev)}>
+          <button
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-cell bg-surface2 text-ink transition-opacity active:opacity-60 disabled:opacity-40"
+            aria-label={`Voltar para ${STATUS[prev].label}`}
+            disabled={busy}
+            onClick={() => go(prev)}
+          >
             <ChevronLeft size={26} />
           </button>
         )}
         {o.status === 'ready' && <WhatsAppButton o={o} compact />}
         {next && (
-          <button className="btn-primary min-h-[56px] min-w-0 flex-1 gap-1 px-2 text-[clamp(14px,4vw,16px)]" aria-label={ADVANCE[o.status]} disabled={busy} onClick={() => go(next)}>
+          <button className="btn-primary min-h-[56px] min-w-0 flex-1 gap-1 px-2" aria-label={ADVANCE[o.status]} disabled={busy} onClick={() => go(next)}>
             <span className="truncate">{ADVANCE_SHORT[o.status]}</span> <ChevronRight size={22} className="shrink-0" />
           </button>
         )}
@@ -147,13 +159,13 @@ function StaffPhoto({ id, onRemove }: { id: string; onRemove: () => void }) {
     };
   }, [id]);
   return (
-    <div className="relative aspect-square overflow-hidden rounded-[14px] bg-surface2">
+    <div className="relative aspect-square overflow-hidden rounded-[12px] bg-surface2">
       {url && (
         <a href={url} target="_blank" rel="noreferrer">
           <img src={url} alt="Foto da vistoria" className="h-full w-full object-cover" />
         </a>
       )}
-      <button className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-bg/80 text-danger" aria-label="Apagar foto" onClick={onRemove}>
+      <button className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-danger shadow" aria-label="Apagar foto" onClick={onRemove}>
         <Trash2 size={16} />
       </button>
     </div>
@@ -198,14 +210,14 @@ function Inspection({ o, initial, onChanged }: { o: Order; initial: { damages: D
   }
 
   return (
-    <section className="mt-5 rounded-2xl border border-line p-4">
-      <p className="mb-3 font-bold">Vistoria de entrada</p>
+    <section className="card mt-5 p-4">
+      <p className="mb-3 text-body font-semibold">Vistoria de entrada</p>
       <div className="grid grid-cols-4 gap-2">
         {o.photos.map((p) => (
           <StaffPhoto key={p} id={p} onRemove={() => removePhoto(p)} />
         ))}
         {o.photos.length < 4 && (
-          <label className={`flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-[14px] border border-dashed border-line2 text-center text-xs text-muted ${busy ? 'opacity-50' : ''}`}>
+          <label className={`flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-[12px] border-[1.5px] border-dashed border-line2 text-center text-footnote text-accent ${busy ? 'opacity-50' : ''}`}>
             <Camera size={22} /> Foto
             <input
               type="file"
@@ -307,7 +319,7 @@ export function OrderSheet({ id, onClose, onChanged }: { id: string | null; onCl
           <div className="mb-4 flex items-center gap-3">
             <Plate plate={o.plate} size="lg" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-lg font-bold">{o.model || 'Carro'}</p>
+              <p className="truncate text-body font-semibold">{o.model || 'Carro'}</p>
               <p className="truncate text-sm text-muted">{[o.color, sizeLabel(o.size)].filter(Boolean).join(' · ')}</p>
             </div>
           </div>
@@ -317,7 +329,7 @@ export function OrderSheet({ id, onClose, onChanged }: { id: string | null; onCl
               {fmtShort(o.date, o.time)} · {duration(o.durationMin)} · {o.box?.name || 'sem box'}
             </span>
           </div>
-          <div className="divide-y divide-line rounded-2xl bg-surface2">
+          <div className="list">
             {[
               ['Cliente', o.clientName || 'Avulso'],
               ...(o.clientPhone ? [['Celular', maskPhone(o.clientPhone)]] : []),
@@ -326,13 +338,13 @@ export function OrderSheet({ id, onClose, onChanged }: { id: string | null; onCl
               ['Total', brl(o.dueCents)],
               ['Pagamento', o.paymentStatus === 'paid' ? `Pago · ${METHOD[o.paidMethod] || o.paidMethod}` : 'A receber (no local)'],
             ].map(([k, v]) => (
-              <div key={k} className="flex items-start justify-between gap-3 px-4 py-3">
-                <span className="min-w-0 text-muted">{k}</span>
+              <div key={k} className={`cell items-start justify-between ${k === 'Total' ? 'font-semibold' : ''}`}>
+                <span className={`min-w-0 ${k === 'Total' ? 'text-ink' : 'text-muted'}`}>{k}</span>
                 <span className="shrink-0 break-words text-right">{v}</span>
               </div>
             ))}
           </div>
-          {o.notes && <p className="mt-3 whitespace-pre-wrap break-words rounded-2xl bg-surface2 p-4 text-soft">{o.notes}</p>}
+          {o.notes && <p className="card mt-3 whitespace-pre-wrap break-words p-4 text-subhead text-soft">{o.notes}</p>}
           {o.cancelReason && o.status === 'cancelled' && <p className="mt-3 text-muted">Motivo: {o.cancelReason}</p>}
 
           {o.status !== 'cancelled' && catalog.data && (
@@ -355,7 +367,7 @@ export function OrderSheet({ id, onClose, onChanged }: { id: string | null; onCl
           )}
 
           {full.data?.loyalty && o.status !== 'cancelled' && (
-            <div className="mt-3 flex items-center gap-3 rounded-2xl bg-tint p-4">
+            <div className="mt-3 flex items-center gap-3 rounded-card bg-tint p-4">
               <Gift className="shrink-0 text-accent" />
               <p className="min-w-0 flex-1 text-sm text-soft">
                 Fidelidade: {full.data.loyalty.stamps}/{full.data.loyalty.goal} selos · {full.data.loyalty.rewards} grátis
@@ -530,9 +542,9 @@ export function NewOrderSheet({ open, onClose, onCreated, scheduleDefault }: { o
   return (
     <Sheet open={open} onClose={onClose} title={later ? 'Novo agendamento' : 'OS avulsa'}>
       <div className="grid gap-4">
-        <div className="grid grid-cols-2 gap-1 rounded-2xl border border-line bg-surface2 p-1" role="tablist">
+        <div className="segmented grid-cols-2" role="tablist">
           {[false, true].map((v) => (
-            <button key={String(v)} role="tab" aria-selected={later === v} onClick={() => setLater(v)} className={`min-h-[44px] rounded-xl text-base font-medium ${later === v ? 'bg-accent font-bold text-bg' : 'text-soft'}`}>
+            <button key={String(v)} role="tab" aria-selected={later === v} onClick={() => setLater(v)} className={`segment ${later === v ? 'segment-on' : ''}`}>
               {v ? 'Agendar' : 'Agora (fila)'}
             </button>
           ))}
@@ -555,7 +567,7 @@ export function NewOrderSheet({ open, onClose, onCreated, scheduleDefault }: { o
             {lookup.slice(0, 3).map((v) => (
               <button
                 key={v.id}
-                className="flex items-center gap-3 rounded-2xl border border-line bg-surface2 p-3 text-left"
+                className="card flex items-center gap-3 p-3 text-left active:opacity-70"
                 onClick={() => {
                   setF({ ...f, plate: maskPlate(v.plate), model: v.model, color: v.color, size: v.size, clientName: v.clientName || f.clientName, clientPhone: v.phone || f.clientPhone });
                   setLookup([]);
@@ -647,7 +659,7 @@ export function NewOrderSheet({ open, onClose, onCreated, scheduleDefault }: { o
                         type="button"
                         disabled={!s.available}
                         onClick={() => setF({ ...f, time: s.time })}
-                        className={`min-h-[48px] rounded-xl border text-sm font-bold ${f.time === s.time ? 'border-accent bg-accent text-bg' : s.available ? 'border-line bg-surface2' : 'border-transparent text-dis line-through'}`}
+                        className={`min-h-[44px] rounded-[10px] text-subhead font-semibold tabular-nums transition-colors ${f.time === s.time ? 'bg-brand text-onaccent' : s.available ? 'bg-surface text-ink' : 'text-dis line-through'}`}
                       >
                         {s.time}
                       </button>
