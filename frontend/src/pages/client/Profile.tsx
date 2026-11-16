@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarDays, Camera, Car, ChevronRight, CircleHelp, Info, Lock, MessageSquareHeart, Smartphone, Stamp } from 'lucide-react';
+import { CalendarDays, Camera, Car, ChevronRight, CircleHelp, Info, Lock, MessageSquareHeart, Stamp } from 'lucide-react';
 import { api, apiUrl } from '../../api';
 import { forgetClient, getSavedName, getSavedPhone, isValidPhone, maskPhone, saveClient } from '../../client';
 import { Avatar, Field, FormError, PageHead, Sheet, Tile, toast } from '../../ui';
@@ -148,7 +148,7 @@ export default function Profile() {
       <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 px-1">
         <p className="text-footnote text-muted">Sem cadastro: seu celular guarda a garagem, as lavagens e os selos.</p>
         {profile?.avatar && (
-          <button className="min-h-[40px] text-sm font-bold text-accent" onClick={removeAvatar}>
+          <button className="min-h-[40px] text-subhead font-semibold text-accent" onClick={removeAvatar}>
             Remover foto
           </button>
         )}
@@ -165,12 +165,11 @@ export default function Profile() {
       </nav>
 
       {phone && (
-        <button onClick={forget} className="list cell mt-6 text-body text-danger active:bg-surface2">
-          <Smartphone size={20} /> Esquecer meu celular neste aparelho
+        <button onClick={forget} className="list cell mt-6 justify-center text-center text-body text-danger active:bg-surface2"> Esquecer meu celular neste aparelho
         </button>
       )}
 
-      <Link to="/admin" className="mt-8 flex min-h-[44px] items-center justify-center gap-2 text-sm text-muted">
+      <Link to="/admin" className="mt-8 flex min-h-[44px] items-center justify-center gap-2 text-footnote text-muted">
         <Lock size={16} /> Área da equipe
       </Link>
 

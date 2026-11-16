@@ -5,7 +5,7 @@ import { api, useApi, type Order, type Service, type Slot, type Vehicle } from '
 import { getSavedName, getSavedPhone, isValidPhone, maskPhone, saveClient } from '../../client';
 import { useConfig } from '../../config';
 import { FullPage } from '../../layout';
-import { Checkbox, Empty, ErrorBox, Field, FormError, Loading, PageHead, Plate, Radio, ServiceIcon, Stepper } from '../../ui';
+import { Checkbox, Empty, ErrorBox, Field, FormError, InfoRow, Loading, PageHead, Plate, Radio, ServiceIcon, Stepper } from '../../ui';
 import { addDays, brl, duration, fmtDate, fmtLong, MONTHS, priceFor, sizeLabel, WEEKDAYS_SHORT, weekdayOf } from '../../util';
 import { VehicleRow, VehicleSheet } from './parts';
 
@@ -29,7 +29,7 @@ function Calendar({ today, value, onChange, schedule }: { today: string; value: 
           <ChevronRight size={22} />
         </button>
       </div>
-      <div className="grid grid-cols-7 gap-1 text-center text-sm text-muted">
+      <div className="grid grid-cols-7 gap-1 text-center text-footnote text-muted">
         {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((d, i) => (
           <span key={i} className="py-1">
             {d}
@@ -166,7 +166,7 @@ export default function Book() {
       <div className={`flex items-center gap-3 ${step === 3 && err ? 'mt-3' : ''}`}>
         {chosen.total > 0 && (
           <div className="min-w-0 flex-1">
-            <p className="text-sm text-muted">{duration(chosen.minutes)}</p>
+            <p className="text-footnote text-muted">{duration(chosen.minutes)}</p>
             <p className="text-title2 font-bold leading-tight tabular-nums text-ink">{brl(chosen.total)}</p>
           </div>
         )}
@@ -203,7 +203,7 @@ export default function Book() {
           <section>
             <p className="mb-3 flex flex-wrap items-center gap-x-3 text-muted">
               Garagem do celular {phone}
-              <button className="min-h-[44px] font-bold text-accent" onClick={() => setPhone('')}>
+              <button className="min-h-[44px] font-semibold text-accent" onClick={() => setPhone('')}>
                 Trocar
               </button>
             </p>
@@ -239,12 +239,12 @@ export default function Book() {
                     onClick={() => setMainId(s.id)}
                     className={`card flex items-center gap-4 p-4 text-left ring-2 transition-[box-shadow,opacity] duration-200 active:opacity-80 disabled:opacity-40 ${on ? 'ring-accent' : 'ring-transparent'}`}
                   >
-                    <ServiceIcon icon={s.icon} />
+                    <ServiceIcon icon={s.icon} size="sm" />
                     <div className="min-w-0 flex-1">
                       <p className="text-body font-semibold">{s.name}</p>
-                      {s.description && <p className="text-sm text-muted">{s.description}</p>}
-                      <p className="mt-1 text-sm text-soft">
-                        {duration(s.durationMin)} · <span className="font-bold text-accent">{price === null ? 'Indisponível para o porte' : brl(price)}</span>
+                      {s.description && <p className="text-footnote text-muted">{s.description}</p>}
+                      <p className="mt-1 text-subhead text-soft">
+                        {duration(s.durationMin)} · <span className="font-semibold text-accent">{price === null ? 'Indisponível para o porte' : brl(price)}</span>
                       </p>
                     </div>
                     <Radio on={on} />
@@ -270,9 +270,9 @@ export default function Book() {
                   >
                     <ServiceIcon icon={s.icon} size="sm" />
                     <div className="min-w-0 flex-1">
-                      <p className="font-bold">{s.name}</p>
-                      <p className="text-sm text-soft">
-                        + {duration(s.durationMin)} · <span className="font-bold text-accent">+ {brl(price)}</span>
+                      <p className="font-semibold">{s.name}</p>
+                      <p className="text-subhead text-soft">
+                        + {duration(s.durationMin)} · <span className="font-semibold text-accent">+ {brl(price)}</span>
                       </p>
                     </div>
                     <Checkbox on={on} />
@@ -298,7 +298,7 @@ export default function Book() {
           />
           <section>
             <h2 className="h2 mb-1">{date ? fmtLong(date) : 'Horários'}</h2>
-            <p className="mb-3 flex items-center gap-1.5 text-sm text-muted">
+            <p className="mb-3 flex items-center gap-1.5 text-footnote text-muted">
               <Clock size={16} /> Duração: {duration(chosen.minutes)}
             </p>
             {!date && <p className="text-muted">Escolha um dia no calendário. Só aparecem horários com box livre durante toda a lavagem.</p>}
@@ -330,26 +330,24 @@ export default function Book() {
       {step === 3 && vehicle && (
         <div className="grid gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-5">
-            <section className="card divide-y divide-line">
-              <div className="flex items-center gap-3 px-5 py-4">
+            <section className="list">
+              <div className="cell gap-3 py-3.5">
                 <Plate plate={vehicle.plate} size="sm" />
-                <span className="min-w-0 flex-1 truncate font-bold">{vehicle.model || 'Carro'}</span>
-                <span className="shrink-0 text-sm text-muted">{sizeLabel(vehicle.size)}</span>
-              </div>
-              {chosen.items.map(({ s, price }) => (
-                <div key={s.id} className="flex items-start justify-between gap-4 px-5 py-3">
-                  <span className="min-w-0 text-soft">{s.name}</span>
-                  <span className="shrink-0 font-medium">{brl(price)}</span>
-                </div>
-              ))}
-              <div className="flex items-start justify-between gap-4 px-5 py-4">
-                <span className="shrink-0 text-muted">Quando</span>
-                <span className="min-w-0 text-right font-medium">
-                  {WEEKDAYS_SHORT[weekdayOf(date)]}, {fmtDate(date)} · {time}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold">{vehicle.model || 'Carro'}</span>
+                  <span className="block truncate text-footnote text-muted">{sizeLabel(vehicle.size)}</span>
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-4 px-5 py-4">
-                <span className="font-bold">Total</span>
+              {chosen.items.map(({ s, price }) => (
+                <InfoRow key={s.id} label={s.name}>
+                  {brl(price)}
+                </InfoRow>
+              ))}
+              <InfoRow label="Quando">
+                {WEEKDAYS_SHORT[weekdayOf(date)]}, {fmtDate(date)} · {time}
+              </InfoRow>
+              <div className="cell justify-between py-3.5">
+                <span className="font-semibold">Total</span>
                 <span className="text-title2 font-bold tabular-nums">{brl(chosen.total)}</span>
               </div>
             </section>
@@ -373,8 +371,8 @@ export default function Book() {
                   <Store size={22} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-bold">Pagar no local</span>
-                  <span className="block text-sm text-muted">Dinheiro, Pix ou cartão na retirada. Sem sinal.</span>
+                  <span className="block font-semibold">Pagar no local</span>
+                  <span className="block text-footnote text-muted">Dinheiro, Pix ou cartão na retirada. Sem sinal.</span>
                 </span>
                 <Radio on />
               </div>
@@ -384,8 +382,8 @@ export default function Book() {
                   <QrCode size={22} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-bold">Pix antecipado</span>
-                  <span className="block text-sm text-muted">Em breve</span>
+                  <span className="block font-semibold">Pix antecipado</span>
+                  <span className="block text-footnote text-muted">Em breve</span>
                 </span>
                 <Radio on={false} />
               </div>

@@ -43,14 +43,14 @@ export default function Bookings() {
         subtitle={
           <span className="flex flex-wrap items-center gap-x-3">
             Celular {phone}
-            <button className="min-h-[44px] font-bold text-accent" onClick={() => setPhone('')}>
+            <button className="min-h-[44px] font-semibold text-accent" onClick={() => setPhone('')}>
               Trocar número
             </button>
           </span>
         }
         action={
           <Link to="/agendar" className="btn-pill" aria-label="Novo agendamento">
-            <CalendarPlus size={20} /> <span className="hidden min-[380px]:inline">Novo</span>
+            <CalendarPlus size={20} /> Novo
           </Link>
         }
       />
