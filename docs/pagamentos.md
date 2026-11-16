@@ -16,3 +16,6 @@ npx supabase secrets set MP_WEBHOOK_SECRET=...            # "Assinatura secreta"
 npx supabase functions deploy create-pix mp-webhook
 ```
 No painel do Mercado Pago, cadastre o webhook `https://<projeto>.supabase.co/functions/v1/mp-webhook` (evento Pagamentos). Depois ligue "Aceitar Pix antecipado" em **Loja**.
+
+## Asaas
+Para usar o Asaas, troque `supabase/functions/_shared/mercadopago.ts` por um cliente equivalente (`POST /v3/payments` com `billingType: PIX` + `GET /v3/payments/{id}/pixQrCode`) e ajuste o webhook ao evento `PAYMENT_RECEIVED` (autenticação pelo header `asaas-access-token`).
