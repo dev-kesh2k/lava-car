@@ -1,15 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Camera, ChevronLeft, ChevronRight, Gift, Search, Trash2, X } from 'lucide-react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Camera, ChevronLeft, ChevronRight, Gift, MessageCircle, MoreHorizontal, Phone, Plus, Search, Trash2, Wallet } from 'lucide-react';
 import { api, fetchImageUrl, useApi, type Box, type Loyalty, type Order, type Service, type Size, type Slot, type Vehicle } from '../../api';
 import { useAuth } from '../../auth';
 import { isValidPhone, maskPhone } from '../../client';
 import { useConfig } from '../../config';
 import { WhatsAppLogo } from '../../brand-icons';
-import { Checkbox, Field, FormError, Loading, Plate, Sheet, SizePicker, StatusPill, toast } from '../../ui';
+import { ActionSheet, Checkbox, Empty, FormError, Field, Loading, Plate, Sheet, SizePicker, StatusPill, toast, type SheetAction } from '../../ui';
 import {
   brl,
   duration,
   fmtShort,
+  formatPlate,
   isValidPlate,
   maskPlate,
   METHOD,
@@ -20,6 +21,7 @@ import {
   resizeImage,
   sizeLabel,
   STATUS,
+  TRACK_STEPS,
   waLink,
 } from '../../util';
 
@@ -165,8 +167,8 @@ function StaffPhoto({ id, onRemove }: { id: string; onRemove: () => void }) {
           <img src={url} alt="Foto da vistoria" className="h-full w-full object-cover" />
         </a>
       )}
-      <button className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-danger shadow" aria-label="Apagar foto" onClick={onRemove}>
-        <Trash2 size={16} />
+      <button className="absolute right-0 top-0 flex h-11 w-11 items-start justify-end p-1.5" aria-label="Apagar foto" onClick={onRemove}>
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur"><Trash2 size={14} /></span>
       </button>
     </div>
   );
@@ -209,87 +211,136 @@ function Inspection({ o, initial, onChanged }: { o: Order; initial: { damages: D
     }
   }
 
-  return (
-    <section className="card mt-5 p-4">
-      <p className="mb-3 text-body font-semibold">Vistoria de entrada</p>
-      <div className="grid grid-cols-4 gap-2">
-        {o.photos.map((p) => (
-          <StaffPhoto key={p} id={p} onRemove={() => removePhoto(p)} />
-        ))}
-        {o.photos.length < 4 && (
-          <label className={`flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-[12px] border-[1.5px] border-dashed border-line2 text-center text-footnote text-accent ${busy ? 'opacity-50' : ''}`}>
-            <Camera size={22} /> Foto
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="sr-only"
-              onChange={(e) => {
-                addPhoto(e.target.files?.[0]);
-                e.target.value = '';
-              }}
-            />
-          </label>
-        )}
-      </div>
-      <p className="mt-1 text-sm text-muted">Até 4 fotos (reduzidas no aparelho antes de enviar).</p>
+  const setDamage = (i: number, patch: Partial<Damage>) => setDamages(damages.map((x, j) => (j === i ? { ...x, ...patch } : x)));
 
-      <div className="mt-4 grid gap-2">
-        {damages.map((d, i) => (
-          <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2">
-            <select className="input min-h-[48px] px-3" value={d.area} aria-label="Local" onChange={(e) => setDamages(damages.map((x, j) => (j === i ? { ...x, area: e.target.value } : x)))}>
-              {Object.entries(AREAS).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v}
-                </option>
-              ))}
-            </select>
-            <select className="input min-h-[48px] px-3" value={d.type} aria-label="Avaria" onChange={(e) => setDamages(damages.map((x, j) => (j === i ? { ...x, type: e.target.value } : x)))}>
-              {Object.entries(DAMAGES).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v}
-                </option>
-              ))}
-            </select>
-            <button className="icon-btn h-12 w-12" aria-label="Remover avaria" onClick={() => setDamages(damages.filter((_, j) => j !== i))}>
-              <X size={18} />
-            </button>
-            <input
-              className="input col-span-3 min-h-[48px]"
-              placeholder="Detalhe (opcional)"
-              maxLength={200}
-              value={d.note}
-              onChange={(e) => setDamages(damages.map((x, j) => (j === i ? { ...x, note: e.target.value } : x)))}
-            />
-          </div>
-        ))}
-        <button className="btn-secondary min-h-[48px]" onClick={() => setDamages([...damages, { area: 'frente', type: 'risco', note: '' }])}>
-          + Marcar avaria
-        </button>
-        <textarea className="input min-h-[70px]" placeholder="Observações da vistoria" maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <button className="btn-primary min-h-[48px]" disabled={busy} onClick={save}>
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 pb-2">
+      <section>
+        <p className="group-title">Fotos · {o.photos.length} de 4</p>
+        <div className="grid grid-cols-4 gap-2">
+          {o.photos.map((p) => (
+            <StaffPhoto key={p} id={p} onRemove={() => removePhoto(p)} />
+          ))}
+          {o.photos.length < 4 && (
+            <label
+              className={`flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-[12px] border-[1.5px] border-dashed border-accent/50 bg-tint/60 text-center text-footnote font-medium text-accent transition-opacity active:opacity-60 ${busy ? 'opacity-50' : ''}`}
+            >
+              <Camera size={22} strokeWidth={1.75} /> Foto
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="sr-only"
+                onChange={(e) => {
+                  addPhoto(e.target.files?.[0]);
+                  e.target.value = '';
+                }}
+              />
+            </label>
+          )}
+        </div>
+        <p className="mt-2 px-1 text-footnote text-muted">Até 4 fotos (reduzidas no aparelho antes de enviar).</p>
+      </section>
+
+      <section>
+        <p className="group-title">Avarias · {damages.length}</p>
+        <div className="grid gap-2.5">
+          {damages.length === 0 && <p className="card px-4 py-3.5 text-subhead text-muted">Nenhuma avaria marcada.</p>}
+          {damages.map((d, i) => (
+            <div key={i} className="card grid grid-cols-2 gap-2 p-3">
+              <div className="col-span-2 -mt-1 flex items-center gap-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-warnbg text-caption font-bold text-warn">{i + 1}</span>
+                <span className="min-w-0 flex-1 text-subhead font-semibold">Avaria {i + 1}</span>
+                <button className="-mr-2 flex h-10 w-10 shrink-0 items-center justify-center text-danger active:opacity-50" aria-label="Remover avaria" onClick={() => setDamages(damages.filter((_, j) => j !== i))}>
+                  <Trash2 size={19} strokeWidth={1.75} />
+                </button>
+              </div>
+                <select className="input min-h-[44px] min-w-0 px-3 text-subhead" value={d.area} aria-label="Local" onChange={(e) => setDamage(i, { area: e.target.value })}>
+                  {Object.entries(AREAS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+                <select className="input min-h-[44px] min-w-0 px-3 text-subhead" value={d.type} aria-label="Avaria" onChange={(e) => setDamage(i, { type: e.target.value })}>
+                  {Object.entries(DAMAGES).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              <input className="input col-span-2 min-h-[44px] text-subhead" placeholder="Detalhe (opcional)" maxLength={200} value={d.note} onChange={(e) => setDamage(i, { note: e.target.value })} />
+            </div>
+          ))}
+          <button className="btn-text justify-center font-semibold" onClick={() => setDamages([...damages, { area: 'frente', type: 'risco', note: '' }])}>
+            <Plus size={20} /> Marcar avaria
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <p className="group-title">Observações</p>
+        <textarea className="input min-h-[84px] resize-y" placeholder="Ex.: arranhão antigo na porta, já avisado ao cliente" maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} />
+        <button className="btn-secondary mt-3 w-full" disabled={busy} onClick={save}>
           Salvar vistoria
         </button>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
-/** Ficha da OS com as ações da equipe. */
+/** Linha de lista no padrão do iOS: rótulo cinza à esquerda e valor à direita (quebra em até 2 linhas). */
+function InfoRow({ label, children, strong }: { label: string; children: ReactNode; strong?: boolean }) {
+  return (
+    <div className="cell items-start justify-between gap-4">
+      <span className={`shrink-0 ${strong ? 'font-semibold text-ink' : 'text-muted'}`}>{label}</span>
+      <span className={`line-clamp-2 min-w-0 flex-1 break-words text-right ${strong ? 'font-semibold' : ''}`}>{children}</span>
+    </div>
+  );
+}
+
+/** Etapas resumidas da OS (Agendado → Pronto) e a próxima. */
+function MiniTracker({ o }: { o: Order }) {
+  if (o.status === 'cancelled') return null;
+  const idx = o.status === 'delivered' ? TRACK_STEPS.length - 1 : TRACK_STEPS.findIndex((t) => t.status === o.status);
+  const done = o.status === 'ready' || o.status === 'delivered';
+  const next = TRACK_STEPS[idx + 1];
+  return (
+    <div className="mt-3" aria-label={`Etapa ${idx + 1} de ${TRACK_STEPS.length}`}>
+      <div className="grid grid-cols-5 gap-1">
+        {TRACK_STEPS.map((t, i) => (
+          <span key={t.status} className={`h-1 rounded-full transition-colors duration-300 ${i <= idx ? (done ? 'bg-okfill' : 'bg-brand') : 'bg-surface2'}`} />
+        ))}
+      </div>
+      <p className="mt-1.5 text-footnote text-muted">
+        Etapa {idx + 1} de {TRACK_STEPS.length}
+        {o.status === 'delivered' ? ' · entregue' : next ? ` · próxima: ${next.label}` : ' · aguardando retirada'}
+      </p>
+    </div>
+  );
+}
+
+type Tab = 'resumo' | 'vistoria' | 'pagamento';
+
+/** Ficha da OS: cabeçalho fixo, abas (Resumo · Vistoria · Pagamento) e a ação da etapa no rodapé. */
 export function OrderSheet({ id, onClose, onChanged }: { id: string | null; onClose: () => void; onChanged: () => void }) {
   const { user } = useAuth();
   const full = useApi<{ order: Order; inspection: { damages: Damage[]; notes: string }; loyalty: Loyalty | null }>(id ? `/staff/orders/${id}` : null);
   const catalog = useApi<Catalog>(id ? '/staff/catalog' : null);
-  const [mode, setMode] = useState<'view' | 'pay' | 'cancel'>('view');
+  const [tab, setTab] = useState<Tab>('resumo');
   const [method, setMethod] = useState('pix');
+  const [more, setMore] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    setMode('view');
+    setTab('resumo');
     setErr('');
     setReason('');
+    setCancelling(false);
+    setMore(false);
   }, [id]);
 
   if (!id) return null;
@@ -301,7 +352,7 @@ export function OrderSheet({ id, onClose, onChanged }: { id: string | null; onCl
     try {
       await fn();
       if (ok) toast(ok);
-      setMode('view');
+      setCancelling(false);
       await full.reload();
       onChanged();
     } catch (e) {
@@ -311,47 +362,147 @@ export function OrderSheet({ id, onClose, onChanged }: { id: string | null; onCl
     }
   }
 
-  return (
-    <Sheet open onClose={onClose} title={o ? `OS ${o.number}` : 'OS'}>
-      {!o && <Loading />}
-      {o && (
-        <>
-          <div className="mb-4 flex items-center gap-3">
-            <Plate plate={o.plate} size="lg" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-body font-semibold">{o.model || 'Carro'}</p>
-              <p className="truncate text-sm text-muted">{[o.color, sizeLabel(o.size)].filter(Boolean).join(' · ')}</p>
-            </div>
-          </div>
-          <div className="mb-4 flex flex-wrap items-center gap-2">
+  if (!o)
+    return (
+      <Sheet open onClose={onClose} title="OS" tall>
+        {full.error ? <FormError message={full.error} /> : <Loading />}
+      </Sheet>
+    );
+
+  const next = nextStatus(o.status);
+  const prev = o.status !== 'delivered' ? prevStatus(o.status) : null;
+  const pending = o.paymentStatus === 'pending' && o.status !== 'cancelled';
+  const canInspect = o.status !== 'cancelled' && o.status !== 'scheduled';
+  const inspCount = o.photos.length + (full.data?.inspection.damages.length || 0);
+
+  const actions: SheetAction[] = [];
+  if (prev) actions.push({ label: `Voltar para ${STATUS[prev].label}`, icon: ChevronLeft, onClick: () => run(() => moveOrder(o, prev)) });
+  if (pending && tab !== 'pagamento') actions.push({ label: 'Registrar pagamento', icon: Wallet, onClick: () => setTab('pagamento') });
+  if (o.status === 'ready' && o.clientPhone) actions.push({ label: 'Avisar no WhatsApp', icon: MessageCircle, onClick: () => window.open(waLink(o.clientPhone, readyMessage(o)), '_blank') });
+  if (!['delivered', 'cancelled'].includes(o.status) && o.paymentStatus !== 'paid')
+    actions.push({ label: 'Cancelar OS', destructive: true, onClick: () => setCancelling(true) });
+
+  const header = (
+    <div className="mt-3">
+      <div className="flex items-center gap-3">
+        <span className="min-[380px]:hidden">
+          <Plate plate={o.plate} size="sm" />
+        </span>
+        <span className="hidden min-[380px]:inline-flex">
+          <Plate plate={o.plate} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-body font-semibold leading-snug">
+            {o.model || 'Carro'} <span className="font-normal text-muted">· {sizeLabel(o.size)}</span>
+          </p>
+          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
             <StatusPill status={o.status} />
-            <span className="text-muted">
-              {fmtShort(o.date, o.time)} · {duration(o.durationMin)} · {o.box?.name || 'sem box'}
+            <span className="truncate text-footnote text-muted">
+              {fmtShort(o.date, o.time)} · {o.box?.name || 'sem box'}
             </span>
           </div>
-          <div className="list">
-            {[
-              ['Cliente', o.clientName || 'Avulso'],
-              ...(o.clientPhone ? [['Celular', maskPhone(o.clientPhone)]] : []),
-              ...o.items.map((i) => [i.name, brl(i.priceCents)]),
-              ...(o.discountCents ? [['Fidelidade (grátis)', `- ${brl(o.discountCents)}`]] : []),
-              ['Total', brl(o.dueCents)],
-              ['Pagamento', o.paymentStatus === 'paid' ? `Pago · ${METHOD[o.paidMethod] || o.paidMethod}` : 'A receber (no local)'],
-            ].map(([k, v]) => (
-              <div key={k} className={`cell items-start justify-between ${k === 'Total' ? 'font-semibold' : ''}`}>
-                <span className={`min-w-0 ${k === 'Total' ? 'text-ink' : 'text-muted'}`}>{k}</span>
-                <span className="shrink-0 break-words text-right">{v}</span>
-              </div>
-            ))}
+        </div>
+      </div>
+      <MiniTracker o={o} />
+      <div className="segmented mt-3 grid-cols-3" role="tablist" aria-label="Seções da OS">
+        {(
+          [
+            ['resumo', 'Resumo'],
+            ['vistoria', inspCount ? `Vistoria · ${inspCount}` : 'Vistoria'],
+            ['pagamento', 'Pagamento'],
+          ] as [Tab, string][]
+        ).map(([k, label]) => (
+          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`segment relative ${tab === k ? 'segment-on' : ''}`}>
+            {label}
+            {k === 'pagamento' && pending && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-warn" aria-label="a receber" />}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const footer =
+    next || actions.length ? (
+      <>
+        {err && (
+          <div className="mb-3">
+            <FormError message={err} />
           </div>
-          {o.notes && <p className="card mt-3 whitespace-pre-wrap break-words p-4 text-subhead text-soft">{o.notes}</p>}
-          {o.cancelReason && o.status === 'cancelled' && <p className="mt-3 text-muted">Motivo: {o.cancelReason}</p>}
+        )}
+        <div className="flex gap-2">
+          {next && (
+            <button className="btn-primary min-w-0 flex-1" disabled={busy} onClick={() => run(() => moveOrder(o, next))}>
+              <span className="truncate">{ADVANCE[o.status]}</span> <ChevronRight size={20} className="shrink-0" />
+            </button>
+          )}
+          {actions.length > 0 && (
+            <button
+              className={`flex min-h-[50px] items-center justify-center gap-2 rounded-cell bg-surface2 text-ink transition-opacity active:opacity-60 ${next ? 'w-[50px] shrink-0' : 'flex-1'}`}
+              aria-label="Mais ações"
+              onClick={() => setMore(true)}
+            >
+              <MoreHorizontal size={22} />
+              {!next && <span className="text-body font-semibold">Ações</span>}
+            </button>
+          )}
+        </div>
+      </>
+    ) : undefined;
+
+  return (
+    <Sheet open onClose={onClose} title={`OS ${o.number}`} header={header} footer={footer} tall>
+      {tab === 'resumo' && (
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 pb-2">
+          <section>
+            <p className="group-title">Cliente</p>
+            <div className="list">
+              <InfoRow label="Nome">{o.clientName || 'Avulso'}</InfoRow>
+              {o.clientPhone && (
+                <div className="cell gap-2 py-2">
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-footnote text-muted">Celular</span>
+                    <span className="block truncate tabular-nums">{maskPhone(o.clientPhone)}</span>
+                  </span>
+                  <a href={`tel:${o.clientPhone.replace(/\D/g, '')}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-tint text-accent active:opacity-60" aria-label="Ligar">
+                    <Phone size={18} strokeWidth={2} />
+                  </a>
+                  <a href={waLink(o.clientPhone)} target="_blank" rel="noreferrer" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/15 active:opacity-60" aria-label="Conversar no WhatsApp">
+                    <WhatsAppLogo size={19} />
+                  </a>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section>
+            <p className="group-title">Serviços · {duration(o.durationMin)}</p>
+            <div className="list">
+              {o.items.map((i) => (
+                <InfoRow key={i.id} label={i.name}>
+                  {brl(i.priceCents)}
+                </InfoRow>
+              ))}
+              {o.discountCents > 0 && <InfoRow label="Fidelidade (grátis)">- {brl(o.discountCents)}</InfoRow>}
+              <InfoRow label="Total" strong>
+                {brl(o.dueCents)}
+              </InfoRow>
+            </div>
+          </section>
+
+          {(o.notes || (o.cancelReason && o.status === 'cancelled')) && (
+            <section>
+              <p className="group-title">Observações</p>
+              {o.notes && <p className="card whitespace-pre-wrap break-words p-4 text-subhead text-soft">{o.notes}</p>}
+              {o.cancelReason && o.status === 'cancelled' && <p className="mt-2 px-1 text-subhead text-danger">Motivo do cancelamento: {o.cancelReason}</p>}
+            </section>
+          )}
 
           {o.status !== 'cancelled' && catalog.data && (
-            <div className="mt-4">
-            <Field label="Quem lavou (comissão)">
+            <section>
+              <p className="group-title">Quem lavou (comissão)</p>
               <select
-                className="input mt-0"
+                className="input"
+                aria-label="Quem lavou"
                 value={o.employee?.id || ''}
                 onChange={(e) => run(() => api.put(`/staff/orders/${o.id}/employee`, { employeeId: e.target.value || null }), 'Responsável atualizado')}
               >
@@ -362,97 +513,109 @@ export function OrderSheet({ id, onClose, onChanged }: { id: string | null; onCl
                   </option>
                 ))}
               </select>
-            </Field>
-            </div>
+            </section>
           )}
 
           {full.data?.loyalty && o.status !== 'cancelled' && (
-            <div className="mt-3 flex items-center gap-3 rounded-card bg-tint p-4">
-              <Gift className="shrink-0 text-accent" />
-              <p className="min-w-0 flex-1 text-sm text-soft">
-                Fidelidade: {full.data.loyalty.stamps}/{full.data.loyalty.goal} selos · {full.data.loyalty.rewards} grátis
-              </p>
-              {full.data.loyalty.rewards > 0 && !o.rewardUsed && o.paymentStatus !== 'paid' && (
-                <button className="btn-pill min-h-[44px] px-4 text-sm" disabled={busy} onClick={() => run(() => api.post(`/staff/orders/${o.id}/redeem`), 'Lavagem grátis aplicada')}>
-                  Usar grátis
-                </button>
-              )}
-            </div>
+            <section>
+              <p className="group-title">Fidelidade</p>
+              <div className="card flex items-center gap-3 p-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] text-white" style={{ background: 'linear-gradient(150deg,#1FA2E6,#0A6CD6)' }}>
+                  <Gift size={20} />
+                </span>
+                <p className="min-w-0 flex-1 text-subhead">
+                  <span className="block font-semibold">
+                    {full.data.loyalty.stamps} de {full.data.loyalty.goal} selos
+                  </span>
+                  <span className="text-muted">{full.data.loyalty.rewards} grátis disponível(is)</span>
+                </p>
+                {full.data.loyalty.rewards > 0 && !o.rewardUsed && o.paymentStatus !== 'paid' && (
+                  <button className="btn-pill min-h-[36px] px-3.5" disabled={busy} onClick={() => run(() => api.post(`/staff/orders/${o.id}/redeem`), 'Lavagem grátis aplicada')}>
+                    Usar grátis
+                  </button>
+                )}
+              </div>
+            </section>
           )}
+        </div>
+      )}
 
-          {o.status !== 'cancelled' && o.status !== 'scheduled' && full.data && <Inspection key={o.photos.join()} o={o} initial={full.data.inspection} onChanged={full.reload} />}
+      {/* A vistoria fica montada (só escondida) para não perder o que foi digitado ao trocar de aba. */}
+      {full.data && canInspect && (
+        <div className={tab === 'vistoria' ? '' : 'hidden'}>
+          <Inspection key={o.photos.join()} o={o} initial={full.data.inspection} onChanged={full.reload} />
+        </div>
+      )}
+      {tab === 'vistoria' && !canInspect && (
+        <Empty icon={Camera} title="Vistoria indisponível" text={o.status === 'cancelled' ? 'A OS foi cancelada.' : 'A vistoria de entrada começa quando o carro chega ao pátio.'} />
+      )}
 
-          {mode === 'pay' && (
-            <div className="mt-5 grid gap-3">
-              <p className="font-bold">Receber {brl(o.dueCents)}</p>
-              <div className="grid grid-cols-3 gap-2">
+      {tab === 'pagamento' && (
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 pb-2">
+          <div className={`rounded-card p-5 text-center ${o.paymentStatus === 'paid' ? 'bg-okbg' : 'card'}`}>
+            <p className="text-footnote text-muted">{o.paymentStatus === 'paid' ? 'Pago' : o.status === 'cancelled' ? 'OS cancelada' : 'A receber no local'}</p>
+            <p className={`mt-1 text-[34px] font-bold leading-tight tabular-nums ${o.paymentStatus === 'paid' ? 'text-ok' : ''}`}>{brl(o.dueCents)}</p>
+            {o.paymentStatus === 'paid' && <p className="mt-1 text-subhead text-ok">{METHOD[o.paidMethod] || o.paidMethod}</p>}
+          </div>
+
+          <div className="list">
+            <InfoRow label="Serviços">{brl(o.totalCents)}</InfoRow>
+            {o.discountCents > 0 && <InfoRow label="Desconto fidelidade">- {brl(o.discountCents)}</InfoRow>}
+            <InfoRow label="Total" strong>
+              {brl(o.dueCents)}
+            </InfoRow>
+          </div>
+
+          {pending && (
+            <section>
+              <p className="group-title">Forma de pagamento</p>
+              <div className="segmented grid-cols-3" role="radiogroup" aria-label="Forma de pagamento">
                 {PAY.map((m) => (
-                  <button key={m} type="button" onClick={() => setMethod(m)} className={`chip w-full px-2 ${method === m ? 'chip-on' : ''}`}>
+                  <button key={m} type="button" role="radio" aria-checked={method === m} onClick={() => setMethod(m)} className={`segment ${method === m ? 'segment-on' : ''}`}>
                     {METHOD[m]}
                   </button>
                 ))}
               </div>
-            </div>
+              <button className="btn-secondary mt-3 w-full" disabled={busy} onClick={() => run(() => api.post(`/staff/orders/${o.id}/pay`, { method }), 'Pagamento registrado')}>
+                <Wallet size={20} /> Registrar recebimento de {brl(o.dueCents)}
+              </button>
+            </section>
           )}
-          {mode === 'cancel' && (
-            <div className="mt-5">
-              <Field label="Motivo (enviado ao cliente)">
-                <input className="input" maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)} />
-              </Field>
-            </div>
+          {o.paymentStatus === 'paid' && user?.role === 'admin' && (
+            <button className="btn-danger w-full" disabled={busy} onClick={() => confirm('Estornar o pagamento? A entrada sai do caixa.') && run(() => api.post(`/staff/orders/${o.id}/unpay`), 'Pagamento estornado')}>
+              Estornar pagamento
+            </button>
           )}
-          <div className="mt-4">
-            <FormError message={err} />
-          </div>
+        </div>
+      )}
 
-          <div className="mt-4 grid gap-3">
-            {mode === 'view' && (
-              <>
-                {nextStatus(o.status) && (
-                  <button className="btn-primary" disabled={busy} onClick={() => run(() => moveOrder(o, nextStatus(o.status)!))}>
-                    {ADVANCE[o.status]} <ChevronRight size={20} />
-                  </button>
-                )}
-                {prevStatus(o.status) && o.status !== 'delivered' && (
-                  <button className="btn-secondary" disabled={busy} onClick={() => run(() => moveOrder(o, prevStatus(o.status)!))}>
-                    <ChevronLeft size={20} /> Voltar para {STATUS[prevStatus(o.status)!].label}
-                  </button>
-                )}
-                {o.status === 'ready' && <WhatsAppButton o={o} />}
-                {o.paymentStatus === 'pending' && o.status !== 'cancelled' && (
-                  <button className="btn-secondary" onClick={() => setMode('pay')}>
-                    Registrar pagamento
-                  </button>
-                )}
-                {o.paymentStatus === 'paid' && user?.role === 'admin' && (
-                  <button className="btn-secondary" disabled={busy} onClick={() => confirm('Estornar o pagamento? A entrada sai do caixa.') && run(() => api.post(`/staff/orders/${o.id}/unpay`), 'Pagamento estornado')}>
-                    Estornar pagamento
-                  </button>
-                )}
-                {!['delivered', 'cancelled'].includes(o.status) && o.paymentStatus !== 'paid' && (
-                  <button className="btn-danger" onClick={() => setMode('cancel')}>
-                    Cancelar OS
-                  </button>
-                )}
-              </>
-            )}
-            {mode === 'pay' && (
-              <button className="btn-primary" disabled={busy} onClick={() => run(() => api.post(`/staff/orders/${o.id}/pay`, { method }), 'Pagamento registrado')}>
-                Confirmar recebimento
-              </button>
-            )}
-            {mode === 'cancel' && (
-              <button className="btn-danger" disabled={busy} onClick={() => run(() => api.post(`/staff/orders/${o.id}/cancel`, { reason }), 'OS cancelada')}>
-                Confirmar cancelamento
-              </button>
-            )}
-            {mode !== 'view' && (
-              <button className="btn-secondary" onClick={() => setMode('view')}>
+      <ActionSheet open={more} onClose={() => setMore(false)} title={`OS ${o.number} · ${formatPlate(o.plate)}`} actions={actions} />
+
+      {cancelling && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6" role="alertdialog" aria-modal="true" aria-label="Cancelar OS">
+          <button type="button" aria-label="Fechar" className="absolute inset-0 animate-fade-in bg-black/40" onClick={() => setCancelling(false)} />
+          <div className="relative w-full max-w-[300px] animate-pop-in overflow-hidden rounded-[14px] bg-[rgb(var(--surface)/0.95)] text-center backdrop-blur-xl">
+            <div className="px-4 pb-4 pt-5">
+              <p className="text-body font-semibold">Cancelar a OS {o.number}?</p>
+              <p className="mt-1 text-footnote text-muted">O motivo é enviado ao cliente.</p>
+              <input className="input mt-3 min-h-[40px] py-2 text-subhead" autoFocus maxLength={300} placeholder="Motivo" value={reason} onChange={(e) => setReason(e.target.value)} />
+              {err && <p className="mt-2 text-footnote text-danger">{err}</p>}
+            </div>
+            <div className="grid grid-cols-2 hairline-t">
+              <button className="min-h-[46px] text-body text-accent active:bg-surface2" onClick={() => setCancelling(false)}>
                 Voltar
               </button>
-            )}
+              <button
+                className="min-h-[46px] text-body font-semibold text-danger active:bg-surface2"
+                style={{ boxShadow: 'inset 0.5px 0 0 rgb(var(--line))' }}
+                disabled={busy}
+                onClick={() => run(() => api.post(`/staff/orders/${o.id}/cancel`, { reason }), 'OS cancelada')}
+              >
+                Cancelar OS
+              </button>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </Sheet>
   );
