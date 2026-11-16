@@ -37,7 +37,7 @@ export default function Commissions() {
         <button className="icon-btn h-11 w-11" aria-label="Semana anterior" onClick={() => data && setWeek(addDays(data.from, -7))}>
           <ChevronLeft size={20} />
         </button>
-        <p className="text-base font-bold">{period}</p>
+        <p className="text-callout font-semibold">{period}</p>
         <button className="icon-btn h-11 w-11 disabled:opacity-30" aria-label="Próxima semana" disabled={!data || data.to >= config.today} onClick={() => data && setWeek(addDays(data.from, 7))}>
           <ChevronRight size={20} />
         </button>
@@ -53,12 +53,12 @@ export default function Commissions() {
               ['Comissões', brl(data.totals.commissionCents)],
             ].map(([k, v], i) => (
               <div key={k} className={`min-w-0 rounded-card p-4 ${i === 2 ? 'bg-brand text-onaccent' : 'card'}`}>
-                <p className={`text-sm ${i === 2 ? '' : 'text-soft'}`}>{k}</p>
+                <p className={`text-subhead ${i === 2 ? '' : 'text-soft'}`}>{k}</p>
                 <p className="break-words text-[clamp(17px,5vw,24px)] font-bold leading-tight tabular-nums">{v}</p>
               </div>
             ))}
           </div>
-          {data.unassigned > 0 && <p className="mt-3 rounded-cell bg-warnbg p-4 text-sm text-warn">{data.unassigned} OS pronta(s) sem responsável na semana: não entram em nenhuma comissão.</p>}
+          {data.unassigned > 0 && <p className="mt-3 rounded-cell bg-warnbg p-4 text-subhead text-warn">{data.unassigned} OS pronta(s) sem responsável na semana: não entram em nenhuma comissão.</p>}
           {data.rows.length === 0 && (
             <div className="mt-5">
               <Empty icon={BadgePercent} title="Ninguém na equipe" text="Cadastre a equipe e o % de comissão em Equipe e boxes." />
@@ -71,7 +71,7 @@ export default function Commissions() {
                   <p className="min-w-0 truncate text-body font-semibold">{r.name}</p>
                   <p className="shrink-0 text-title3 font-bold tabular-nums text-ink">{brl(r.commissionCents)}</p>
                 </div>
-                <p className="mt-1 text-sm text-muted">
+                <p className="mt-1 text-footnote text-muted">
                   {r.count} {r.count === 1 ? 'lavagem' : 'lavagens'} · {brl(r.grossCents)} · {r.commissionPct}%
                 </p>
               </div>

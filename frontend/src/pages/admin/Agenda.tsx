@@ -12,16 +12,16 @@ function OrderRow({ o, onClick }: { o: Order; onClick: () => void }) {
     <button onClick={onClick} className="card flex w-full min-w-0 items-center gap-3 px-4 py-4 text-left transition active:scale-[0.99] sm:px-5">
       <div className="w-[3.2rem] shrink-0 text-center">
         <p className="text-body font-semibold leading-tight">{o.time}</p>
-        <p className="text-xs text-muted">{duration(o.durationMin)}</p>
+        <p className="text-caption text-muted">{duration(o.durationMin)}</p>
       </div>
       <span className={`w-1 shrink-0 self-stretch rounded-full ${STATUS[o.status].bar}`} />
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
           <Plate plate={o.plate} size="sm" />
-          <span className="truncate text-sm text-muted">{o.box?.name}</span>
+          <span className="truncate text-footnote text-muted">{o.box?.name}</span>
         </div>
-        <p className="mt-1 truncate font-bold">{o.clientName || o.model || 'Cliente avulso'}</p>
-        <p className="truncate text-sm text-muted">
+        <p className="mt-1 truncate font-semibold">{o.clientName || o.model || 'Cliente avulso'}</p>
+        <p className="truncate text-footnote text-muted">
           {o.items.map((i) => i.name).join(' + ')} · {brl(o.dueCents)}
         </p>
       </div>
@@ -64,7 +64,7 @@ export default function Agenda() {
         <button className="icon-btn h-11 w-11" aria-label="Semana anterior" onClick={() => setDay(addDays(start, -7))}>
           <ChevronLeft size={20} />
         </button>
-        <p className="text-base text-soft">
+        <p className="text-callout text-soft">
           {dayNum(start)} {monthShort(start)} – {dayNum(addDays(start, 6))} {monthShort(addDays(start, 6))}
         </p>
         <button className="icon-btn h-11 w-11" aria-label="Próxima semana" onClick={() => setDay(addDays(start, 7))}>
@@ -87,9 +87,9 @@ export default function Agenda() {
                 sel ? 'bg-brand text-onaccent' : d === today ? 'bg-surface text-accent shadow-[var(--shadow-card)]' : 'bg-surface shadow-[var(--shadow-card)]'
               } ${closed && !sel ? 'opacity-50' : ''}`}
             >
-              <span className={`text-[13px] sm:text-sm ${sel ? 'text-onaccent' : 'text-muted'}`}>{WEEKDAYS_SHORT[weekdayOf(d)]}</span>
+              <span className={`text-[13px] sm:text-subhead ${sel ? 'text-onaccent' : 'text-muted'}`}>{WEEKDAYS_SHORT[weekdayOf(d)]}</span>
               <span className="text-[clamp(17px,5vw,22px)] font-semibold leading-tight tabular-nums">{dayNum(d)}</span>
-              {n > 0 && <span className={`absolute bottom-1 text-[11px] font-bold ${sel ? 'text-onaccent' : 'text-accent'}`}>{n}</span>}
+              {n > 0 && <span className={`absolute bottom-1 text-caption font-bold ${sel ? 'text-onaccent' : 'text-accent'}`}>{n}</span>}
             </button>
           );
         })}
@@ -112,7 +112,7 @@ export default function Agenda() {
         </div>
         {cancelled.length > 0 && (
           <>
-            <h3 className="mb-3 mt-6 font-bold text-muted">Cancelados</h3>
+            <h3 className="mb-3 mt-6 font-semibold text-muted">Cancelados</h3>
             <div className="grid gap-3 opacity-70 lg:grid-cols-2">
               {cancelled.map((o) => (
                 <OrderRow key={o.id} o={o} onClick={() => setOpen(o.id)} />

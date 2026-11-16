@@ -22,7 +22,7 @@ export default function Help() {
       <div className="flex flex-col gap-3">
         {FAQ.map((f) => (
           <details key={f.q} className="card group p-0">
-            <summary className="flex min-h-[60px] cursor-pointer list-none items-center gap-3 px-5 text-base font-bold">
+            <summary className="flex min-h-[60px] cursor-pointer list-none items-center gap-3 px-5 text-callout font-semibold">
               <span className="min-w-0 flex-1">{f.q}</span>
               <ChevronDown size={20} className="shrink-0 text-soft transition group-open:rotate-180" />
             </summary>

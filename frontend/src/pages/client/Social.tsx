@@ -47,8 +47,8 @@ export default function Social({ config, compact }: { config: Config; compact?: 
             <l.icon size={22} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-bold">{l.label}</span>
-            <span className="block truncate text-sm text-muted">{l.handle}</span>
+            <span className="block font-semibold">{l.label}</span>
+            <span className="block truncate text-footnote text-muted">{l.handle}</span>
           </span>
         </a>
       ))}

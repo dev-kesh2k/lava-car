@@ -16,7 +16,7 @@ export default function About() {
       <PageHead back="/perfil" title="Sobre" subtitle={c.studioName} />
 
       {c.about ? (
-        <p className="card whitespace-pre-line break-words p-5 text-base leading-relaxed text-soft">{c.about}</p>
+        <p className="card whitespace-pre-line break-words p-5 text-callout leading-relaxed text-soft">{c.about}</p>
       ) : (
         <p className="card p-5 text-muted">Lava-car com agendamento online e acompanhamento ao vivo. Em breve mais informações por aqui.</p>
       )}
@@ -27,7 +27,7 @@ export default function About() {
             <div className="card flex items-start gap-3 p-4">
               <Clock size={20} className="mt-0.5 shrink-0 text-accent" />
               <div className="min-w-0">
-                <p className="font-bold">Horário</p>
+                <p className="font-semibold">Horário</p>
                 <p className="whitespace-pre-line text-soft">{hours}</p>
               </div>
             </div>
@@ -36,7 +36,7 @@ export default function About() {
             <a href={`tel:${c.phone.replace(/[^\d+]/g, '')}`} className="card flex items-start gap-3 p-4">
               <Phone size={20} className="mt-0.5 shrink-0 text-accent" />
               <div className="min-w-0">
-                <p className="font-bold">Telefone</p>
+                <p className="font-semibold">Telefone</p>
                 <p className="text-soft">{c.phone}</p>
               </div>
             </a>
