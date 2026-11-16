@@ -3,16 +3,15 @@ import { Link } from 'react-router-dom';
 import { CalendarDays, CalendarPlus, ChevronRight, Clock, MapPin, MessageSquareHeart, Star } from 'lucide-react';
 import { useConfig } from '../../config';
 import Social, { socialLinks } from './Social';
-import { useApi, type Loyalty, type Order, type Service } from '../../api';
+import { useApi, type Loyalty, type Order } from '../../api';
 import { getSavedName, getSavedPhone } from '../../client';
-import { ErrorBox, Loading, PageHead, Plate, ServiceIcon } from '../../ui';
-import { brl, duration, firstName, fmtShort, isOpen, minPrice, STATUS } from '../../util';
+import { PageHead, Plate } from '../../ui';
+import { firstName, fmtShort, isOpen, STATUS } from '../../util';
 import { LoyaltyCard, Tracker } from './parts';
 
 export default function Home() {
   const phone = getSavedPhone();
   const name = getSavedName();
-  const services = useApi<{ services: Service[] }>('/services');
   const config = useConfig();
   const q = phone ? `?phone=${encodeURIComponent(phone)}` : '';
   const mine = useApi<{ orders: Order[]; today: string }>(phone ? `/orders/by-phone${q}` : null);
@@ -72,35 +71,6 @@ export default function Home() {
         )}
       </div>
 
-      <section className="mt-8">
-        <h2 className="h2 px-1">Serviços</h2>
-        <p className="mb-4 mt-1 px-1 text-footnote text-muted">Preços a partir de: o valor final depende do porte do carro.</p>
-        {services.loading && !services.data && <Loading />}
-        {services.error && <ErrorBox message={services.error} onRetry={services.reload} />}
-        {services.data && (
-          <div className="grid gap-4 lg:grid-cols-2">
-            {[services.data.services.filter((s) => s.kind === 'main'), services.data.services.filter((s) => s.kind === 'addon')]
-              .filter((g) => g.length)
-              .map((group, gi) => (
-                <div key={gi}>
-                  <p className="group-title">{gi === 0 ? 'Lavagens' : 'Adicionais'}</p>
-                  <div className="list" style={{ '--sep-inset': '68px' } as CSSProperties}>
-                    {group.map((s) => (
-                      <div key={s.id} className="cell">
-                        <ServiceIcon icon={s.icon} size="sm" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-body font-medium">{s.name}</p>
-                          <p className="text-footnote text-muted">{s.description || duration(s.durationMin)}</p>
-                        </div>
-                        <p className="shrink-0 whitespace-nowrap text-right text-body font-semibold tabular-nums">{brl(minPrice(s))}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-          </div>
-        )}
-      </section>
 
       <div className="list mt-8" style={{ '--sep-inset': '60px' } as CSSProperties}>
         <Link to="/perfil/feedback" className="cell">
