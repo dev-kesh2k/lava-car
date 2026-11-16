@@ -1,4 +1,4 @@
-import { useEffect, useState, type InputHTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type InputHTMLAttributes, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
@@ -23,6 +23,10 @@ import type { OrderStatus, Size } from './api';
 import { formatPlate, SIZE_INFO, SIZES, STATUS, initials } from './util';
 
 // ---------- Cabeçalho de página ----------
+/**
+ * Barra de navegação do iOS: título grande (Large Title) que, ao rolar, vira o título
+ * pequeno centralizado na barra translúcida do topo. O "Voltar" fica na barra.
+ */
 export function PageHead({
   title,
   subtitle,
@@ -30,6 +34,8 @@ export function PageHead({
   back,
   onBack,
   eyebrow,
+  barTitle,
+  toolbar,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
@@ -37,33 +43,66 @@ export function PageHead({
   back?: string | true;
   onBack?: () => void;
   eyebrow?: ReactNode;
+  /** Texto do título pequeno da barra (padrão: o próprio título, se for texto). */
+  barTitle?: string;
+  /** Botões de ícone à direita na barra de navegação (use a classe bar-btn). */
+  toolbar?: ReactNode;
 }) {
   const nav = useNavigate();
+  const ref = useRef<HTMLHeadingElement>(null);
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const el = ref.current;
+      if (el) setCollapsed(el.getBoundingClientRect().bottom < 52);
+    };
+    check();
+    window.addEventListener('scroll', check, { passive: true });
+    return () => window.removeEventListener('scroll', check);
+  }, []);
+  const small = barTitle ?? (typeof title === 'string' ? title : '');
+  const hasBack = !!(back || onBack);
   return (
     <header className="mb-6">
-      <div className="flex items-center gap-3">
-        {(back || onBack) && (
-          <button
-            type="button"
-            aria-label="Voltar"
-            onClick={() => (onBack ? onBack() : back === true ? nav(-1) : nav(back as string))}
-            className="icon-btn border-transparent"
+      <div
+        className={`pointer-events-none fixed inset-x-0 top-0 z-30 pt-[env(safe-area-inset-top)] transition-[background-color,box-shadow] duration-200 md:[.has-side_&]:left-64 ${
+          collapsed ? 'glass hairline-b' : ''
+        }`}
+      >
+        <div className="relative mx-auto flex h-11 max-w-5xl items-center px-2 md:px-6">
+          {hasBack && (
+            <button
+              type="button"
+              aria-label="Voltar"
+              onClick={() => (onBack ? onBack() : back === true ? nav(-1) : nav(back as string))}
+              className="btn-text pointer-events-auto relative z-10 -ml-0.5 pr-3"
+            >
+              <ChevronLeft size={28} strokeWidth={2.2} className="-mr-1" /> Voltar
+            </button>
+          )}
+          <p
+            aria-hidden
+            className={`absolute inset-x-24 truncate text-center text-body font-semibold text-ink transition-opacity duration-200 ${collapsed ? 'opacity-100' : 'opacity-0'}`}
           >
-            <ChevronLeft size={24} />
-          </button>
-        )}
-        <div className="min-w-0 flex-1">
-          {eyebrow && <p className="mb-1 text-sm font-bold uppercase tracking-[0.12em] text-muted">{eyebrow}</p>}
-          <h1 className="h1">{title}</h1>
+            {small}
+          </p>
+          {toolbar && <div className="pointer-events-auto relative z-10 ml-auto flex items-center">{toolbar}</div>}
         </div>
+      </div>
+      {eyebrow && <p className="mb-0.5 text-subhead text-muted">{eyebrow}</p>}
+      <div className="flex items-center gap-3">
+        <h1 ref={ref} className="h1 min-w-0 flex-1">
+          {title}
+        </h1>
         {action}
       </div>
-      {subtitle && <p className="mt-3 text-base text-muted">{subtitle}</p>}
+      {subtitle && <p className="mt-1.5 text-subhead text-muted">{subtitle}</p>}
     </header>
   );
 }
 
 // ---------- Switch ----------
+/** Igual ao do iPhone: 51×31, verde do sistema, botão branco com sombra. */
 export function Switch({
   checked,
   onChange,
@@ -86,10 +125,10 @@ export function Switch({
         e.stopPropagation();
         onChange(!checked);
       }}
-      className={`relative h-[30px] w-[52px] shrink-0 rounded-full transition disabled:opacity-50 ${checked ? 'bg-accent' : 'bg-surface2'}`}
+      className={`relative h-[31px] w-[51px] shrink-0 rounded-full transition-colors duration-200 ease-out disabled:opacity-50 ${checked ? 'bg-okfill' : 'bg-[rgb(120_120_128_/_0.24)]'}`}
     >
       <span
-        className={`absolute top-[4px] h-[22px] w-[22px] rounded-full transition-all ${checked ? 'left-[26px] bg-bg' : 'left-[4px] bg-muted'}`}
+        className={`absolute left-[2px] top-[2px] h-[27px] w-[27px] rounded-full bg-white shadow-[0_3px_8px_rgba(0,0,0,0.15),0_1px_1px_rgba(0,0,0,0.16)] transition-transform duration-200 ease-out ${checked ? 'translate-x-5' : ''}`}
       />
       <span className="absolute -inset-2" />
     </button>
@@ -105,11 +144,14 @@ export function Avatar({ name, size = 'md', accent, src }: { name: string; size?
   }, [src]);
   const s =
     size === 'lg'
-      ? `h-14 w-14 text-lg min-[380px]:h-[72px] min-[380px]:w-[72px] min-[380px]:text-2xl ${accent ? 'rounded-full' : 'rounded-2xl min-[380px]:rounded-[20px]'}`
-      : size === 'sm' ? 'h-11 w-11 text-sm rounded-xl' : 'h-14 w-14 text-lg rounded-2xl';
-  if (src && !failed) return <img src={src} alt={name} onError={() => setFailed(true)} className={`shrink-0 bg-surface2 object-cover ${s}`} />;
+      ? 'h-16 w-16 text-title2 min-[380px]:h-[76px] min-[380px]:w-[76px] min-[380px]:text-title1'
+      : size === 'sm' ? 'h-10 w-10 text-subhead' : 'h-12 w-12 text-body';
+  if (src && !failed) return <img src={src} alt={name} onError={() => setFailed(true)} className={`shrink-0 rounded-full bg-surface2 object-cover ${s}`} />;
   return (
-    <div className={`flex shrink-0 items-center justify-center font-bold ${s} ${accent ? 'bg-accent text-bg' : 'bg-surface2 text-ink'}`}>
+    <div
+      className={`flex shrink-0 items-center justify-center rounded-full font-semibold text-white ${s}`}
+      style={{ background: accent ? 'linear-gradient(160deg,#2BB8F0,#0A6CD6)' : 'linear-gradient(160deg,#A1A1A8,#7C7C83)' }}
+    >
       {initials(name)}
     </div>
   );
@@ -118,8 +160,13 @@ export function Avatar({ name, size = 'md', accent, src }: { name: string; size?
 // ---------- Status ----------
 export function StatusPill({ status, plain }: { status: OrderStatus; plain?: boolean }) {
   const s = STATUS[status];
-  if (plain) return <span className={`text-sm font-bold ${s.text}`}>{s.label}</span>;
-  return <span className={`inline-flex shrink-0 items-center rounded-full px-3 py-1.5 text-sm font-bold ${s.bg} ${s.text}`}>{s.label}</span>;
+  if (plain) return <span className={`text-subhead font-semibold ${s.text}`}>{s.label}</span>;
+  return (
+    <span className={`inline-flex min-h-[26px] shrink-0 items-center gap-1.5 rounded-full px-2.5 text-footnote font-semibold ${s.bg} ${s.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${s.bar}`} aria-hidden />
+      {s.label}
+    </span>
+  );
 }
 
 // ---------- Ícones de serviço ----------
@@ -133,26 +180,65 @@ const SERVICE_ICONS: Record<string, LucideIcon> = {
   star: Star,
   shield: ShieldCheck,
 };
+/** Cor de cada ícone, no estilo dos ícones do app Ajustes do iPhone. */
+const SERVICE_TINT: Record<string, [string, string]> = {
+  droplet: ['#3FC3F5', '#0A6CD6'],
+  sparkles: ['#8E8CFF', '#5856D6'],
+  car: ['#52D3E8', '#0A8FB0'],
+  armchair: ['#FFB547', '#FF8A00'],
+  spray: ['#5EDB7E', '#22A447'],
+  circle: ['#A1A1A8', '#6C6C72'],
+  star: ['#FFD43B', '#FF9F0A'],
+  shield: ['#D88CFF', '#A54BD8'],
+};
 export const SERVICE_ICON_KEYS = Object.keys(SERVICE_ICONS);
 
 export function ServiceIcon({ icon, active = true, size = 'md' }: { icon: string; active?: boolean; size?: 'sm' | 'md' }) {
   const I = SERVICE_ICONS[icon] || Droplet;
-  const box = size === 'sm' ? 'h-11 w-11 rounded-xl' : 'h-12 w-12 rounded-[14px] min-[380px]:h-14 min-[380px]:w-14';
+  const [a, b] = active ? SERVICE_TINT[icon] || SERVICE_TINT.droplet : ['#C7C7CC', '#AEAEB2'];
+  const box = size === 'sm' ? 'h-10 w-10 rounded-[11px]' : 'h-12 w-12 rounded-[13px]';
+  const style: CSSProperties = { background: `linear-gradient(160deg, ${a}, ${b})` };
   return (
-    <div className={`flex shrink-0 items-center justify-center ${box} ${active ? 'stripes text-accent' : 'bg-surface2 text-muted'}`}>
-      <I size={size === 'sm' ? 22 : 24} />
+    <div className={`flex shrink-0 items-center justify-center text-white ${box}`} style={style}>
+      <I size={size === 'sm' ? 21 : 24} strokeWidth={2} />
     </div>
   );
 }
 
-// ---------- Placa e porte ----------
-/** Placa no estilo Mercosul (faixa azul no topo). */
-export function Plate({ plate, size = 'md' }: { plate: string; size?: 'sm' | 'md' | 'lg' }) {
-  const s = size === 'lg' ? 'min-w-[8.5rem] text-2xl' : size === 'sm' ? 'min-w-[5.5rem] text-sm' : 'min-w-[7rem] text-lg';
+/** Ícone colorido de linha de lista, como no app Ajustes do iPhone. */
+export function Tile({ icon: I, color }: { icon: LucideIcon; color: string }) {
   return (
-    <span className={`inline-flex shrink-0 flex-col overflow-hidden rounded-md border-2 border-[#1d2b36] bg-white text-center font-mono font-bold leading-none text-[#0f172a] ${s}`}>
-      <span className="h-1.5 bg-[#0b4fa3]" aria-hidden />
-      <span className="px-2 py-1 tracking-[0.06em]">{formatPlate(plate)}</span>
+    <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[8px] text-white" style={{ background: color }}>
+      <I size={18} strokeWidth={2} />
+    </span>
+  );
+}
+
+// ---------- Placa e porte ----------
+/** Placa no padrão Mercosul: faixa azul com "BRASIL", emblema e bandeira; letras pretas em fundo branco. */
+export function Plate({ plate, size = 'md' }: { plate: string; size?: 'sm' | 'md' | 'lg' }) {
+  const s =
+    size === 'lg'
+      ? { w: 'min-w-[9.5rem]', band: 'h-[13px]', text: 'text-[26px] px-3 pb-1 pt-0.5', r: 'rounded-[7px]' }
+      : size === 'sm'
+        ? { w: 'min-w-[5.6rem]', band: 'h-[8px]', text: 'text-[15px] px-2 pb-[3px] pt-px', r: 'rounded-[4px]' }
+        : { w: 'min-w-[7.25rem]', band: 'h-[10px]', text: 'text-[19px] px-2.5 pb-1 pt-0.5', r: 'rounded-[5px]' };
+  return (
+    <span
+      className={`inline-flex shrink-0 flex-col overflow-hidden border-[1.5px] border-[#1C1C1E] bg-white text-center font-sans font-bold leading-none text-[#111] tabular-nums shadow-[0_1px_2px_rgba(0,0,0,0.12)] ${s.w} ${s.r}`}
+      aria-label={`Placa ${formatPlate(plate)}`}
+    >
+      <svg viewBox="0 0 100 10" preserveAspectRatio="none" className={`block w-full ${s.band}`} aria-hidden>
+        <rect width="100" height="10" fill="#0039A6" />
+        <circle cx="6" cy="5" r="2.6" fill="none" stroke="#fff" strokeWidth="0.6" />
+        <text x="50" y="7.4" textAnchor="middle" fill="#fff" fontSize="6.6" fontWeight="700" fontFamily="Arial, sans-serif" letterSpacing="1.2">
+          BRASIL
+        </text>
+        <rect x="89" y="2.2" width="7" height="5.6" fill="#009C3B" />
+        <path d="M92.5 2.9 95.6 5 92.5 7.1 89.4 5z" fill="#FFDF00" />
+        <circle cx="92.5" cy="5" r="1.2" fill="#002776" />
+      </svg>
+      <span className={`whitespace-nowrap tracking-[0.08em] ${s.text}`} style={{ fontStretch: '90%' }}>{formatPlate(plate)}</span>
     </span>
   );
 }
@@ -168,8 +254,8 @@ export function CarSilhouette({ size, className = '' }: { size: Size; className?
   return (
     <svg viewBox="0 0 92 52" className={className} aria-hidden>
       <path d={paths[size]} fill="currentColor" />
-      <circle cx={size === 'small' ? 26 : 22} cy="42" r="7" fill="#0A0F14" stroke="currentColor" strokeWidth="3" />
-      <circle cx={size === 'small' ? 66 : 72} cy="42" r="7" fill="#0A0F14" stroke="currentColor" strokeWidth="3" />
+      <circle cx={size === 'small' ? 26 : 22} cy="42" r="7" fill="rgb(var(--surface))" stroke="currentColor" strokeWidth="3" />
+      <circle cx={size === 'small' ? 66 : 72} cy="42" r="7" fill="rgb(var(--surface))" stroke="currentColor" strokeWidth="3" />
     </svg>
   );
 }
@@ -186,11 +272,16 @@ export function SizePicker({ value, onChange }: { value: Size | ''; onChange: (s
             role="radio"
             aria-checked={on}
             onClick={() => onChange(s)}
-            className={`flex min-w-0 flex-col items-center rounded-[18px] border px-2 py-3 text-center transition active:scale-[0.98] ${on ? 'border-accent bg-tint text-accent' : 'border-line bg-surface text-soft'}`}
+            className={`relative flex min-w-0 flex-col items-center rounded-card bg-surface px-2 pb-3 pt-3.5 text-center shadow-[var(--shadow-card)] ring-2 transition-[box-shadow,color] duration-200 ${on ? 'text-accent ring-accent' : 'text-dis ring-transparent'}`}
           >
+            {on && (
+              <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-onaccent">
+                <Check size={13} strokeWidth={3} />
+              </span>
+            )}
             <CarSilhouette size={s} className="h-9 w-16" />
-            <span className={`mt-1 text-base font-bold ${on ? 'text-ink' : ''}`}>{SIZE_INFO[s].label}</span>
-            <span className="text-sm text-muted">{SIZE_INFO[s].short}</span>
+            <span className="mt-1.5 text-subhead font-semibold text-ink">{SIZE_INFO[s].label}</span>
+            <span className="text-footnote text-muted">{SIZE_INFO[s].short}</span>
           </button>
         );
       })}
@@ -201,7 +292,7 @@ export function SizePicker({ value, onChange }: { value: Size | ''; onChange: (s
 // ---------- Estados ----------
 export function Loading({ label = 'Carregando…' }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-16 text-muted" role="status">
+    <div className="flex items-center justify-center gap-2 py-16 text-subhead text-muted" role="status">
       <Loader2 className="animate-spin" size={20} /> {label}
     </div>
   );
@@ -209,11 +300,11 @@ export function Loading({ label = 'Carregando…' }: { label?: string }) {
 
 export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="card flex flex-col items-center gap-3 p-6 text-center">
+    <div className="card flex flex-col items-center gap-2 p-6 text-center">
       <AlertCircle className="text-danger" />
-      <p className="text-soft">{message}</p>
+      <p className="text-subhead text-soft">{message}</p>
       {onRetry && (
-        <button className="btn-secondary min-h-[44px]" onClick={onRetry}>
+        <button className="btn-text font-semibold" onClick={onRetry}>
           Tentar de novo
         </button>
       )}
@@ -223,12 +314,12 @@ export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () =
 
 export function Empty({ icon: I, title, text, action }: { icon: LucideIcon; title: string; text?: string; action?: ReactNode }) {
   return (
-    <div className="card flex flex-col items-center gap-2 px-6 py-10 text-center">
-      <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface2 text-accent">
-        <I size={26} />
+    <div className="card flex flex-col items-center gap-1.5 px-6 py-9 text-center">
+      <div className="mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-tint text-accent">
+        <I size={26} strokeWidth={1.75} />
       </div>
-      <p className="text-lg font-bold">{title}</p>
-      {text && <p className="max-w-sm text-muted">{text}</p>}
+      <p className="text-body font-semibold">{title}</p>
+      {text && <p className="max-w-sm text-subhead text-muted">{text}</p>}
       {action && <div className="mt-3 w-full max-w-xs">{action}</div>}
     </div>
   );
@@ -237,8 +328,8 @@ export function Empty({ icon: I, title, text, action }: { icon: LucideIcon; titl
 export function FormError({ message }: { message: string }) {
   if (!message) return null;
   return (
-    <p role="alert" className="flex items-start gap-2 rounded-xl bg-dangerbg px-4 py-3 text-sm text-danger">
-      <AlertCircle size={18} className="mt-0.5 shrink-0" /> <span className="min-w-0 break-words">{message}</span>
+    <p role="alert" className="flex animate-fade-in items-start gap-2 rounded-cell bg-dangerbg px-4 py-3 text-subhead text-danger">
+      <AlertCircle size={18} className="mt-px shrink-0" /> <span className="min-w-0 break-words">{message}</span>
     </p>
   );
 }
@@ -249,7 +340,7 @@ export function Field({ label, children, hint }: { label: string; children: Reac
     <label className="block min-w-0">
       <span className="label">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-sm text-muted">{hint}</span>}
+      {hint && <span className="mt-1.5 block px-1 text-footnote text-muted">{hint}</span>}
     </label>
   );
 }
@@ -257,7 +348,7 @@ export function Field({ label, children, hint }: { label: string; children: Reac
 export function IconInput({ icon: I, ...props }: { icon: LucideIcon } & InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="relative">
-      <I size={20} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+      <I size={20} strokeWidth={1.75} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
       <input {...props} className="input pl-12" />
     </div>
   );
@@ -267,7 +358,7 @@ export function PasswordInput({ icon: I, ...props }: { icon?: LucideIcon } & Inp
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
-      {I && <I size={20} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />}
+      {I && <I size={20} strokeWidth={1.75} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />}
       <input {...props} type={show ? 'text' : 'password'} className={`input pr-14 ${I ? 'pl-12' : ''}`} />
       <button
         type="button"
@@ -282,18 +373,23 @@ export function PasswordInput({ icon: I, ...props }: { icon?: LucideIcon } & Inp
 }
 
 // ---------- Rádio ----------
+/** Marca de seleção do iOS: círculo vazio ou preenchido com check. */
 export function Radio({ on }: { on: boolean }) {
   return (
-    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${on ? 'border-accent' : 'border-line2'}`}>
-      {on && <span className="h-3 w-3 rounded-full bg-accent" />}
+    <span
+      className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${on ? 'bg-brand text-onaccent' : 'border-[1.5px] border-line2'}`}
+    >
+      {on && <Check size={14} strokeWidth={3.2} />}
     </span>
   );
 }
 
 export function Checkbox({ on }: { on: boolean }) {
   return (
-    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${on ? 'border-accent bg-accent text-bg' : 'border-line2'}`}>
-      {on && <Check size={16} strokeWidth={3} />}
+    <span
+      className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-[7px] transition-colors duration-200 ${on ? 'bg-brand text-onaccent' : 'border-[1.5px] border-line2'}`}
+    >
+      {on && <Check size={14} strokeWidth={3.2} />}
     </span>
   );
 }
@@ -302,18 +398,20 @@ export function Checkbox({ on }: { on: boolean }) {
 const STEPS = ['Veículo', 'Serviços', 'Horário', 'Resumo'];
 export function Stepper({ step }: { step: number }) {
   return (
-    <ol className="mb-6 grid grid-cols-4 gap-2" aria-label="Etapas do agendamento">
+    <ol className="-mt-3 mb-6 grid grid-cols-4 gap-1.5" aria-label="Etapas do agendamento">
       {STEPS.map((s, i) => (
         <li key={s} className="min-w-0" aria-current={i === step ? 'step' : undefined}>
-          <div className={`h-1.5 rounded-full ${i <= step ? 'bg-accent' : 'bg-surface2'}`} />
-          <p className={`mt-2 truncate text-sm ${i === step ? 'font-bold text-ink' : i < step ? 'text-soft' : 'text-muted'}`}>{s}</p>
+          <div className="h-1 overflow-hidden rounded-full bg-surface2">
+            <div className={`h-full rounded-full bg-brand transition-[width] duration-300 ease-out ${i <= step ? 'w-full' : 'w-0'}`} />
+          </div>
+          <p className={`mt-1.5 truncate text-footnote ${i === step ? 'font-semibold text-ink' : i < step ? 'text-soft' : 'text-muted'}`}>{s}</p>
         </li>
       ))}
     </ol>
   );
 }
 
-// ---------- Bottom sheet / modal ----------
+// ---------- Folha modal (sheet do iOS) ----------
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
   useEffect(() => {
     if (!open) return;
@@ -329,15 +427,20 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-6" role="dialog" aria-modal="true" aria-label={title}>
-      <button type="button" aria-label="Fechar" className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative max-h-[92dvh] w-full overflow-y-auto rounded-t-[24px] border border-line bg-surface px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 md:max-w-lg md:rounded-[24px]">
-        <div className="mb-5 flex items-center gap-3">
-          <h2 className="h2 min-w-0 flex-1 break-words">{title}</h2>
-          <button type="button" aria-label="Fechar" onClick={onClose} className="icon-btn h-11 w-11 bg-surface2">
-            <X size={20} />
-          </button>
+      <button type="button" aria-label="Fechar" className="absolute inset-0 animate-fade-in bg-black/40" onClick={onClose} />
+      <div className="relative max-h-[94dvh] w-full animate-sheet-up overflow-y-auto rounded-t-[14px] bg-elevated px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl md:max-w-lg md:animate-pop-in md:rounded-[14px] min-[380px]:px-5">
+        <div className="sticky top-0 z-10 -mx-4 bg-elevated/90 px-4 pb-3 pt-2 backdrop-blur-md min-[380px]:-mx-5 min-[380px]:px-5">
+          <div className="mx-auto mb-2.5 h-[5px] w-9 rounded-full bg-line md:hidden" aria-hidden />
+          <div className="flex items-center gap-3">
+            <h2 className="min-w-0 flex-1 break-words text-title3 font-bold">{title}</h2>
+            <button type="button" aria-label="Fechar" onClick={onClose} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full">
+              <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-surface2 text-muted">
+                <X size={17} strokeWidth={2.6} />
+              </span>
+            </button>
+          </div>
         </div>
-        {children}
+        <div className="pt-1">{children}</div>
       </div>
     </div>
   );
@@ -400,10 +503,10 @@ export function Lightbox({
         <img src={urls[index]} alt="" className="h-full w-full object-contain" />
         {count > 1 && (
           <>
-            <button className="icon-btn absolute left-3 top-1/2 -translate-y-1/2 bg-bg/80" aria-label="Foto anterior" onClick={() => go(-1)}>
+            <button className="icon-btn absolute left-3 top-1/2 -translate-y-1/2" aria-label="Foto anterior" onClick={() => go(-1)}>
               <ChevronLeft size={24} />
             </button>
-            <button className="icon-btn absolute right-3 top-1/2 -translate-y-1/2 bg-bg/80" aria-label="Próxima foto" onClick={() => go(1)}>
+            <button className="icon-btn absolute right-3 top-1/2 -translate-y-1/2" aria-label="Próxima foto" onClick={() => go(1)}>
               <ChevronRight size={24} />
             </button>
           </>
@@ -433,7 +536,7 @@ export function Toaster() {
         <div
           key={t.id}
           role="status"
-          className={`max-w-md rounded-2xl border px-4 py-3 text-sm font-medium shadow-xl ${t.error ? 'border-danger/50 bg-dangerbg text-danger' : 'border-line bg-surface2 text-ink'}`}
+          className={`glass flex max-w-md animate-toast-in items-center gap-2 rounded-full px-5 py-3 text-subhead font-semibold shadow-[0_8px_30px_rgba(0,0,0,0.16)] ${t.error ? 'text-danger' : 'text-ink'}`}
         >
           {t.text}
         </div>
@@ -444,7 +547,7 @@ export function Toaster() {
 
 export function Stars({ value, size = 16 }: { value: number; size?: number }) {
   return (
-    <span className="inline-flex items-center gap-0.5 text-accent" aria-label={`${value} de 5`}>
+    <span className="inline-flex items-center gap-0.5 text-[#FF9F0A]" aria-label={`${value} de 5`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Star key={i} size={size} fill={i <= value ? 'currentColor' : 'none'} />
       ))}

@@ -83,15 +83,15 @@ export const OPERATOR_TABS: Tab[] = [
 
 export function Logo({ compact }: { compact?: boolean }) {
   const config = useConfig();
-  const size = compact ? 'h-10 w-10' : 'h-12 w-12';
+  const size = compact ? 'h-9 w-9 rounded-[9px]' : 'h-12 w-12 rounded-xl';
   return (
-    <div className="flex min-w-0 items-center gap-3">
+    <div className="flex min-w-0 items-center gap-2.5">
       <img
         src={config?.logoVersion ? `${API_BASE}/logo?v=${config.logoVersion}` : `${import.meta.env.BASE_URL}icons/icon.svg`}
         alt=""
-        className={`${size} shrink-0 rounded-xl object-contain`}
+        className={`${size} shrink-0 object-contain shadow-[0_1px_3px_rgba(0,0,0,0.12)]`}
       />
-      <p className="min-w-0 truncate font-display text-2xl font-extrabold uppercase leading-none">{config?.studioName || 'Lava Car'}</p>
+      <p className="min-w-0 truncate text-body font-semibold leading-tight">{config?.studioName || 'Lava Car'}</p>
     </div>
   );
 }
@@ -120,76 +120,64 @@ function TabLink({ tab, className, children }: { tab: Tab; className: (active: b
   );
 }
 
-/** Página com abas: barra inferior no celular e menu lateral a partir do md. */
+/** Página com abas: barra de abas translúcida no celular e barra lateral (estilo iPad) a partir do md. */
 export function TabsLayout({ tabs, side, admin }: { tabs: Tab[]; side?: Tab[]; admin?: boolean }) {
   const { signOut } = useAuth();
+  const sideItem = (isActive: boolean) =>
+    `flex min-h-[44px] items-center gap-3 rounded-[10px] px-3 text-body transition-colors duration-200 ${
+      isActive ? 'bg-brand font-semibold text-onaccent' : 'text-ink hover:bg-surface2'
+    }`;
   return (
-    <div className="min-h-[100dvh] md:pl-64">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-tabbar px-4 py-6 md:flex">
+    <div className="has-side min-h-[100dvh] md:pl-64">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-surface/70 px-3 py-5 backdrop-blur-xl md:flex" style={{ boxShadow: 'inset -0.5px 0 0 rgb(var(--line))' }}>
         <div className="px-2">
           <Logo compact />
         </div>
-        <nav className="mt-8 flex flex-col gap-1" aria-label="Menu">
+        <nav className="mt-6 flex flex-col gap-0.5" aria-label="Menu">
           {(side || tabs).map((t) => (
-            <TabLink
-              key={t.to}
-              tab={t}
-              className={(isActive) =>
-                `flex min-h-[48px] items-center gap-3 rounded-2xl px-4 text-base font-medium transition ${
-                  isActive ? 'bg-tint2 font-bold text-accent' : 'text-soft hover:bg-surface'
-                }`
-              }
-            >
-              <t.icon size={22} /> {t.label}
+            <TabLink key={t.to} tab={t} className={sideItem}>
+              <t.icon size={21} strokeWidth={1.75} /> {t.label}
             </TabLink>
           ))}
         </nav>
-        <div className="mt-auto flex flex-col gap-1">
+        <div className="mt-auto flex flex-col gap-0.5">
           {admin ? (
             <>
               {side && (
-              <NavLink
-                to="/admin/config"
-                className={({ isActive }) =>
-                  `flex min-h-[48px] items-center gap-3 rounded-2xl px-4 text-base font-medium ${isActive ? 'bg-tint2 text-accent' : 'text-soft hover:bg-surface'}`
-                }
-              >
-                <Settings size={22} /> Configurações
-              </NavLink>
+                <NavLink to="/admin/config" className={({ isActive }) => sideItem(isActive)}>
+                  <Settings size={21} strokeWidth={1.75} /> Configurações
+                </NavLink>
               )}
-              <button onClick={signOut} className="flex min-h-[48px] items-center gap-3 rounded-2xl px-4 text-base font-medium text-accent hover:bg-surface">
-                <LogOut size={22} /> Sair
+              <button onClick={signOut} className="flex min-h-[44px] items-center gap-3 rounded-[10px] px-3 text-body text-danger hover:bg-surface2">
+                <LogOut size={21} strokeWidth={1.75} /> Sair
               </button>
             </>
           ) : (
-            <NavLink to="/admin" className="flex min-h-[44px] items-center gap-3 rounded-2xl px-4 text-sm text-muted hover:bg-surface">
-              <Lock size={18} /> Área da equipe
+            <NavLink to="/admin" className="flex min-h-[44px] items-center gap-3 rounded-[10px] px-3 text-subhead text-muted hover:bg-surface2">
+              <Lock size={18} strokeWidth={1.75} /> Área da equipe
             </NavLink>
           )}
         </div>
       </aside>
 
-      <main className="mx-auto w-full max-w-5xl px-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-[max(2.25rem,env(safe-area-inset-top))] md:px-10 md:pb-12 md:pt-10">
+      <main className="mx-auto w-full max-w-5xl px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[calc(env(safe-area-inset-top)+3rem)] min-[380px]:px-5 md:px-10 md:pb-12 md:pt-14">
         <Outlet />
       </main>
 
-      <nav
-        aria-label="Menu"
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-tabbar pb-[env(safe-area-inset-bottom)] md:hidden"
-      >
+      <nav aria-label="Menu" className="glass hairline-t fixed inset-x-0 bottom-0 z-30 pb-[env(safe-area-inset-bottom)] md:hidden">
         <div className="mx-auto flex max-w-xl">
           {tabs.map((t) => (
             <TabLink
               key={t.to}
               tab={t}
               className={(isActive) =>
-                `flex min-h-[68px] min-w-0 flex-1 flex-col items-center justify-center gap-1 px-0.5 text-[clamp(11px,3.4vw,13px)] transition ${
-                  isActive ? 'font-bold text-accent' : 'text-muted'
+                `flex min-h-[54px] min-w-0 flex-1 flex-col items-center justify-center gap-[3px] px-0.5 pt-1 text-[11px] font-medium tracking-[0.1px] transition-colors duration-200 ${
+                  isActive ? 'text-accent' : 'text-[rgb(var(--muted))]'
                 }`
               }
             >
-              <t.icon size={24} strokeWidth={1.9} />
-              <span className="max-w-full truncate">{t.label}</span>
+              <t.icon size={25} strokeWidth={1.75} />
+              <span className="max-w-full truncate leading-none">{t.label}</span>
             </TabLink>
           ))}
         </div>
@@ -202,12 +190,14 @@ export function TabsLayout({ tabs, side, admin }: { tabs: Tab[]; side?: Tab[]; a
 export function FullPage({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
   return (
     <div className="min-h-[100dvh]">
-      <div className={`mx-auto w-full max-w-3xl px-6 pt-[max(2.25rem,env(safe-area-inset-top))] ${footer ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom))]' : 'pb-[max(2rem,env(safe-area-inset-bottom))]'}`}>
+      <div
+        className={`mx-auto w-full max-w-3xl px-4 pt-[calc(env(safe-area-inset-top)+3rem)] min-[380px]:px-5 ${footer ? 'pb-[calc(8rem+env(safe-area-inset-bottom))]' : 'pb-[max(2rem,env(safe-area-inset-bottom))]'}`}
+      >
         {children}
       </div>
       {footer && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 backdrop-blur">
-          <div className="mx-auto w-full max-w-3xl px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">{footer}</div>
+        <div className="glass hairline-t fixed inset-x-0 bottom-0 z-30">
+          <div className="mx-auto w-full max-w-3xl px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 min-[380px]:px-5">{footer}</div>
         </div>
       )}
     </div>
