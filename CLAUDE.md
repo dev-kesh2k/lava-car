@@ -12,3 +12,10 @@ Modelar o banco inteiro antes da interface (`supabase/migrations`).
 - Multi-tenant: toda tabela tem `tenant_id`.
 - Tabelas: `tenants` (dados, horários, boxes simultâneos), `profiles` (ADMIN / OPERATOR / CUSTOMER), `vehicles` (placa, modelo, cor, categoria Hatch/Sedan/SUV/Caminhonete), `services` + `service_prices` (preço por categoria), `appointments_os` (+ `os_items`), `os_checklist` (fotos e avarias), `loyalty_cards`, `cash_entries`, `push_subscriptions`.
 - RLS: cliente só vê os próprios carros/OS; equipe só vê a própria loja; financeiro só o dono.
+
+## Fase 2 — Fluxo do cliente (atrito zero: agendar em menos de 40 s)
+- Login por telefone/WhatsApp (OTP) ou e-mail/Google.
+- Garagem virtual com seletor visual de porte (Pequeno, Médio, Grande/SUV, Caminhonete).
+- Wizard: 1) veículo (filtra preços pelo porte) 2) serviço principal + adicionais 3) data/hora — **disponibilidade = duração do serviço × boxes livres** 4) resumo e pagamento (no local ou Pix antecipado).
+- Tracker ao vivo: Agendado ➔ No pátio ➔ Lavando ➔ Finalizando ➔ Pronto para retirada.
+- Cartão fidelidade digital em selos.
