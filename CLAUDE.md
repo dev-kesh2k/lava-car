@@ -1,11 +1,11 @@
 # Lava Car — especificação e roteiro
 
-Sistema para lava-car (PWA mobile-first): o cliente agenda pelo celular e acompanha o carro ao vivo; o balcão toca o pátio num tablet; o dono controla preços, equipe e caixa. Pensado como SaaS multi-tenant (cada loja é um `tenant_id`). Responder e documentar em **pt-BR**.
+Sistema para lava-car (PWA mobile-first): o cliente agenda pelo celular e acompanha o carro ao vivo; o balcão toca o pátio num tablet; o dono controla preços, equipe e caixa. Feito a partir do template de agendamento do Hub (frontend/ + backend/). Responder e documentar em **pt-BR**.
 
 ## Stack
-- **Frontend (PWA / mobile-first):** React + Vite + TypeScript + Tailwind CSS + shadcn/ui (`src/components/ui`). Instalável no celular sem loja de apps (`public/manifest.webmanifest` + `src/sw.ts`).
-- **Backend e banco:** Supabase — PostgreSQL + Auth + Storage (fotos da vistoria) + Realtime (pátio e acompanhamento sem F5).
-- **Pagamentos:** Mercado Pago (Pix com QR Code automático e confirmação por webhook). Asaas pode entrar no lugar trocando `supabase/functions/_shared/mercadopago.ts`.
+- **Frontend (PWA / mobile-first):** React + Vite + TypeScript + Tailwind (`frontend/`), instalável na Tela de Início (`public/manifest.webmanifest`). Publicado em `/lava-car/`: use `import.meta.env.BASE_URL` e a API em `${BASE_URL}api/...`.
+- **Backend:** Express + Prisma (`backend/`) no PostgreSQL do servidor (Central Apps Hub cria o banco e preenche `DATABASE_URL`).
+- **Pagamentos:** no local por enquanto. Pix (Mercado Pago/Asaas) fica para depois: integrar em `POST /api/orders` e chamar `payOrder()` no webhook.
 
 ## Fase 1 — Fundação, banco e regras de negócio
 Modelar o banco inteiro antes da interface (`supabase/migrations`).
@@ -47,14 +47,14 @@ Modelar o banco inteiro antes da interface (`supabase/migrations`).
 | 5º | "Desenvolva a Fase 4 (Financeiro e Comissões) e configure o manifest.json e service worker para transformar a aplicação em um PWA instalável." |
 
 ## Onde fica cada coisa
-- `supabase/migrations/*.sql` — schema em ordem (tipos → tabelas → RLS → regras → relatórios → storage → realtime). Nunca editar migração já aplicada: crie outra.
-- `supabase/functions/` — Edge Functions (Deno): `create-pix`, `mp-webhook`, `notify-status`.
-- `src/lib/` — regras puras e testadas (disponibilidade, preços, fuso, placa, telefone, fidelidade, comissões, caixa).
-- `src/api/` — acesso ao Supabase (uma função por operação).
-- `src/features/<área>/` — telas: `auth`, `garage`, `booking`, `tracker`, `loyalty`, `customer`, `yard`, `admin`.
-- Regras que valem dinheiro ou vaga (preço, capacidade, comissão, caixa) ficam **no banco** (`book_appointment`, `open_walk_in`, triggers); o frontend só repete a conta para mostrar.
+- `backend/prisma/schema.prisma` + `prisma/migrations` — banco (Box, Vehicle, preços por porte, Order = agendamento/OS, itens, vistoria, fidelidade, caixa). Mudança = migração nova.
+- `backend/src/rules.js` — regras puras com testes (`test/rules.test.js`): placa, preço por porte, boxes livres, status, fidelidade, comissão, caixa.
+- `backend/src/orders.js` — agendamento/OS no banco (trava por dia, box atribuído, status, pagamento).
+- `backend/src/routes.js` (cliente), `staff.js` (`/api/staff`: dono e operador), `admin.js` (`/api/admin`: só o dono), `whatsapp.js`.
+- `frontend/src/pages/client/*` (cliente pelo celular, sem login) e `frontend/src/pages/admin/*` (equipe em `/admin/login`).
+- Regras que valem dinheiro ou vaga ficam **no backend**; o frontend só mostra.
 
 ## Comandos
-- `npm run dev` · `npm run build` · `npm test` (Vitest) · `npm run lint` · `npm run check` (tipos + lint + testes, igual ao CI).
-- Banco local: `npx supabase start` e `npx supabase db reset` (aplica migrações + `supabase/seed.sql`).
-- Tipos do banco: `npx supabase gen types typescript --local > src/lib/database.types.ts` (manter `type`, não `interface`).
+- Backend: `cd backend && npm install && npm test && npm start` (precisa de `DATABASE_URL`; `npx prisma migrate deploy` e `node prisma/seed.js`).
+- Frontend: `cd frontend && npm install && npm run dev` (build: `npx vite build --base /lava-car/`).
+- Deploy: push na `main` → GitHub Actions (`deploy.yml`) → Hub publica em `/lava-car/`.
