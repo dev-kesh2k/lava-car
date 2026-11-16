@@ -7,11 +7,12 @@ import { Empty, ErrorBox, Loading, PageHead, Plate, toast } from '../../ui';
 import { fmtLong, fmtShort, STATUS } from '../../util';
 import { moveOrder, NewOrderSheet, OrderSheet, YardCard } from './parts';
 
-const COLUMNS: { status: OrderStatus; label: string }[] = [
-  { status: 'waiting', label: 'Aguardando' },
-  { status: 'washing', label: 'Em lavagem' },
-  { status: 'finishing', label: 'Acabamento' },
-  { status: 'ready', label: 'Pronto' },
+/** `short`: rótulo da aba em telas bem estreitas (320 px). */
+const COLUMNS: { status: OrderStatus; label: string; short: string }[] = [
+  { status: 'waiting', label: 'Aguardando', short: 'Fila' },
+  { status: 'washing', label: 'Em lavagem', short: 'Lavando' },
+  { status: 'finishing', label: 'Acabamento', short: 'Acabando' },
+  { status: 'ready', label: 'Pronto', short: 'Pronto' },
 ];
 
 interface YardData {
@@ -75,11 +76,11 @@ export default function Yard() {
           <div className="list">
             {data.arriving.map((o) => (
               <div key={o.id} className="cell gap-3 py-2.5">
-                <button className="flex min-h-[44px] min-w-0 flex-1 items-center gap-3 text-left" onClick={() => setOpen(o.id)}>
+                <button className="flex min-h-[44px] min-w-0 flex-1 flex-col items-start gap-1.5 text-left min-[380px]:flex-row min-[380px]:items-center min-[380px]:gap-3" onClick={() => setOpen(o.id)}>
                   <Plate plate={o.plate} size="sm" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block break-words text-body font-medium leading-tight">{o.model || o.clientName || 'Carro'}</span>
-                    <span className={`flex items-center gap-1 text-footnote ${o.date < data.today ? 'text-warn' : 'text-muted'}`}>
+                  <span className="min-w-0 max-w-full">
+                    <span className="block truncate text-body font-medium leading-tight">{o.model || o.clientName || 'Carro'}</span>
+                    <span className={`mt-0.5 flex items-center gap-1 text-footnote ${o.date < data.today ? 'text-warn' : 'text-muted'}`}>
                       <Clock size={13} /> {o.date === data.today ? o.time : fmtShort(o.date, o.time)}
                     </span>
                   </span>
@@ -101,13 +102,16 @@ export default function Yard() {
             role="tab"
             aria-selected={col === c.status}
             onClick={() => setCol(c.status)}
-            className={`segment min-h-[52px] flex-col gap-0.5 leading-tight ${col === c.status ? 'segment-on' : ''}`}
+            className={`segment min-h-[52px] flex-col gap-0.5 px-0.5 leading-tight ${col === c.status ? 'segment-on' : ''}`}
           >
             <span className="flex items-center gap-1.5 text-body font-semibold tabular-nums">
               <span className={`h-2 w-2 rounded-full ${STATUS[c.status].bar}`} aria-hidden />
               {by(c.status).length}
             </span>
-            <span className="max-w-full truncate text-[clamp(10px,3.1vw,13px)] tracking-[-0.2px]">{c.label}</span>
+            <span className="max-w-full truncate text-caption min-[380px]:text-footnote">
+              <span className="min-[360px]:hidden">{c.short}</span>
+              <span className="hidden min-[360px]:inline">{c.label}</span>
+            </span>
           </button>
         ))}
       </div>
