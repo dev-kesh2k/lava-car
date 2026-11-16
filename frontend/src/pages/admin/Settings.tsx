@@ -1,10 +1,10 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, ChevronRight, LogOut, Send, User, XCircle } from 'lucide-react';
+import { CheckCircle2, ChevronRight, LogOut, Send, XCircle } from 'lucide-react';
 import { api, API_BASE, useApi, type DaySchedule } from '../../api';
 import { useAuth } from '../../auth';
 import { reloadConfig } from '../../config';
-import { ErrorBox, Field, FormError, Loading, PageHead, Switch, toast } from '../../ui';
+import { Avatar, ErrorBox, Field, FormError, Loading, PageHead, Switch, toast } from '../../ui';
 import { fmtDateTime, resizeImage } from '../../util';
 
 interface S {
@@ -77,10 +77,10 @@ const EVENT: Record<string, string> = {
 
 function Section({ title, children, hint }: { title: string; children: ReactNode; hint?: ReactNode }) {
   return (
-    <section className="card grid grid-cols-1 gap-4 p-5 [&>*]:min-w-0">
+    <section className="card grid grid-cols-1 gap-5 p-4 min-[380px]:p-5 [&>*]:min-w-0">
       <div>
         <h2 className="h2">{title}</h2>
-        {hint && <p className="mt-2 text-sm text-muted">{hint}</p>}
+        {hint && <p className="mt-1 text-footnote text-muted">{hint}</p>}
       </div>
       {children}
     </section>
@@ -93,23 +93,22 @@ const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 function ScheduleEditor({ value, onChange }: { value: DaySchedule[]; onChange: (v: DaySchedule[]) => void }) {
   const upd = (i: number, patch: Partial<DaySchedule>) => onChange(value.map((d, k) => (k === i ? { ...d, ...patch } : d)));
   return (
-    <div className="grid gap-2">
-      {DAY_ORDER.map((i) => {
+    <div className="overflow-hidden rounded-cell border border-line/70">
+      {DAY_ORDER.map((i, n) => {
         const d = value[i];
         return (
-          <div key={i} className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <div className="flex min-h-[44px] w-36 items-center gap-3">
+          <div key={i} className={`px-4 py-2.5 ${n ? 'hairline-t' : ''}`}>
+            <div className="flex min-h-[40px] items-center gap-3">
+              <span className={`min-w-0 flex-1 ${d.open ? 'font-medium' : 'text-muted'}`}>{DAY_NAMES[i]}</span>
+              {!d.open && <span className="text-subhead text-muted">Fechado</span>}
               <Switch checked={d.open} onChange={(v) => upd(i, { open: v })} label={DAY_NAMES[i]} />
-              <span className={d.open ? 'font-medium' : 'text-muted'}>{DAY_NAMES[i]}</span>
             </div>
-            {d.open ? (
-              <div className="flex items-center gap-2">
-                <input type="time" className="input w-[7.5rem]" value={d.from} onChange={(e) => upd(i, { from: e.target.value })} aria-label={`Abre ${DAY_NAMES[i]}`} />
-                <span className="text-muted">às</span>
-                <input type="time" className="input w-[7.5rem]" value={d.to} onChange={(e) => upd(i, { to: e.target.value })} aria-label={`Fecha ${DAY_NAMES[i]}`} />
+            {d.open && (
+              <div className="mb-1 mt-1.5 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+                <input type="time" className="input min-h-[44px] px-3 tabular-nums" value={d.from} onChange={(e) => upd(i, { from: e.target.value })} aria-label={`Abre ${DAY_NAMES[i]}`} />
+                <span className="text-subhead text-muted">às</span>
+                <input type="time" className="input min-h-[44px] px-3 tabular-nums" value={d.to} onChange={(e) => upd(i, { to: e.target.value })} aria-label={`Fecha ${DAY_NAMES[i]}`} />
               </div>
-            ) : (
-              <span className="text-muted">Fechado</span>
             )}
           </div>
         );
@@ -123,7 +122,7 @@ function Toggle({ label, hint, on, set }: { label: string; hint?: string; on: bo
     <div className="flex items-center justify-between gap-3 rounded-cell bg-surface2 px-4 py-3">
       <span className="min-w-0">
         <span className="block">{label}</span>
-        {hint && <span className="block text-sm text-muted">{hint}</span>}
+        {hint && <span className="block text-footnote text-muted">{hint}</span>}
       </span>
       <Switch checked={on} onChange={set} label={label} />
     </div>
@@ -132,7 +131,7 @@ function Toggle({ label, hint, on, set }: { label: string; hint?: string; on: bo
 
 /** Situação da ponte de WhatsApp do servidor (GET /health da bridge). */
 function BridgeBadge({ status, loading, onRetry }: { status: BridgeStatus | null; loading: boolean; onRetry: () => void }) {
-  if (loading) return <p className="rounded-cell bg-surface2 px-4 py-3 text-sm text-muted">Verificando a ponte do WhatsApp…</p>;
+  if (loading) return <p className="rounded-cell bg-surface2 px-4 py-3 text-footnote text-muted">Verificando a ponte do WhatsApp…</p>;
   const ok = !!status?.connected;
   const text = !status
     ? 'Não consegui verificar a ponte.'
@@ -144,10 +143,10 @@ function BridgeBadge({ status, loading, onRetry }: { status: BridgeStatus | null
           ? 'Ponte conectada: o WhatsApp do servidor está pronto para enviar.'
           : 'Ponte no ar, mas o WhatsApp do servidor está desconectado (precisa ler o QR Code no Hub).';
   return (
-    <div className={`flex items-start gap-2 rounded-cell px-4 py-3 text-sm ${ok ? 'bg-okbg text-ok' : 'bg-warnbg text-warn'}`}>
+    <div className={`flex items-start gap-2 rounded-cell px-4 py-3 text-subhead ${ok ? 'bg-okbg text-ok' : 'bg-warnbg text-warn'}`}>
       {ok ? <CheckCircle2 size={18} className="mt-0.5 shrink-0" /> : <XCircle size={18} className="mt-0.5 shrink-0" />}
       <span className="min-w-0 flex-1 break-words">{text}</span>
-      <button type="button" className="shrink-0 font-bold underline" onClick={onRetry}>
+      <button type="button" className="shrink-0 font-semibold underline" onClick={onRetry}>
         Atualizar
       </button>
     </div>
@@ -238,21 +237,21 @@ export default function Settings() {
     <div className="mx-auto max-w-2xl">
       <PageHead back="/admin" title="Configurações" />
 
-      <Link to="/admin/conta" className="card mb-6 flex min-h-[64px] items-center gap-4 px-5">
-        <User size={22} className="shrink-0" />
+      <Link to="/admin/conta" className="list cell mb-8 min-h-[60px]">
+        <Avatar name={user?.name || 'Eu'} size="sm" accent />
         <span className="min-w-0 flex-1">
-          <span className="block font-bold">Minha conta</span>
-          <span className="block truncate text-sm text-muted">{user?.email} · alterar dados e senha</span>
+          <span className="block text-body font-semibold">Minha conta</span>
+          <span className="block truncate text-footnote text-muted">{user?.email} · alterar dados e senha</span>
         </span>
-        <ChevronRight size={20} className="text-soft" />
+        <ChevronRight size={20} className="chev" />
       </Link>
 
-      <form onSubmit={save} className="grid gap-6">
+      <form onSubmit={save} className="grid gap-8">
         <Section title="Loja">
           <Field label="Logo do app" hint="Aparece no topo do app e na tela de login da equipe.">
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-cell bg-surface2">
-                {s.logoVersion ? <img src={`${API_BASE}/logo?v=${s.logoVersion}`} alt="Logo" className="h-full w-full object-contain" /> : <span className="text-sm text-muted">Padrão</span>}
+                {s.logoVersion ? <img src={`${API_BASE}/logo?v=${s.logoVersion}`} alt="Logo" className="h-full w-full object-contain" /> : <span className="text-footnote text-muted">Padrão</span>}
               </div>
               <label className="btn-secondary cursor-pointer">
                 {s.logoVersion ? 'Trocar logo' : 'Enviar logo'}
@@ -267,7 +266,7 @@ export default function Settings() {
                 />
               </label>
               {s.logoVersion > 0 && (
-                <button type="button" className="text-base text-accent" onClick={removeLogo}>
+                <button type="button" className="text-callout text-accent" onClick={removeLogo}>
                   Remover
                 </button>
               )}
@@ -290,7 +289,7 @@ export default function Settings() {
               </select>
             </Field>
           </div>
-          <p className="rounded-cell bg-surface2 p-4 text-sm text-muted">Pagamento: por enquanto só no local (sem sinal). O Pix antecipado fica desligado até integrarmos um gateway de pagamento.</p>
+          <p className="rounded-cell bg-surface2 p-4 text-footnote text-muted">Pagamento: por enquanto só no local (sem sinal). O Pix antecipado fica desligado até integrarmos um gateway de pagamento.</p>
           <Field label="Telefone">
             <input className="input" type="tel" inputMode="tel" value={f.phone} onChange={(e) => set('phone', e.target.value)} />
           </Field>
@@ -314,10 +313,10 @@ export default function Settings() {
         <Section title="Redes sociais" hint="Só aparecem as preenchidas.">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Instagram">
-              <input className="input" placeholder="@seunegocio" value={f.instagram} onChange={(e) => set('instagram', e.target.value)} />
+              <input className="input" placeholder="@seunegocio" autoCapitalize="none" autoCorrect="off" value={f.instagram} onChange={(e) => set('instagram', e.target.value)} />
             </Field>
             <Field label="TikTok">
-              <input className="input" placeholder="@seunegocio" value={f.tiktok} onChange={(e) => set('tiktok', e.target.value)} />
+              <input className="input" placeholder="@seunegocio" autoCapitalize="none" autoCorrect="off" value={f.tiktok} onChange={(e) => set('tiktok', e.target.value)} />
             </Field>
           </div>
           <Field label="Facebook (link)">
@@ -380,7 +379,7 @@ export default function Settings() {
 
       <section className="card mt-6 grid grid-cols-1 gap-4 p-5 [&>*]:min-w-0">
         <h2 className="h2">Testar WhatsApp</h2>
-        <p className="text-sm text-muted">Manda uma mensagem pela ponte do servidor para o número abaixo (funciona mesmo com os avisos automáticos desligados).</p>
+        <p className="text-footnote text-muted">Manda uma mensagem pela ponte do servidor para o número abaixo (funciona mesmo com os avisos automáticos desligados).</p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input className="input" type="tel" inputMode="tel" placeholder="(45) 99123-4567" value={testTo} onChange={(e) => setTestTo(e.target.value)} aria-label="Número para o teste" />
           <button type="button" className="btn-secondary shrink-0" onClick={test} disabled={!s.waBridge}>
@@ -390,17 +389,21 @@ export default function Settings() {
         <FormError message={testErr} />
         <div>
           <p className="label">Últimos envios</p>
-          {log.data && log.data.log.length === 0 && <p className="text-sm text-muted">Nenhuma mensagem enviada ainda.</p>}
+          {log.data && log.data.log.length === 0 && <p className="text-footnote text-muted">Nenhuma mensagem enviada ainda.</p>}
           <ul className="divide-y divide-line">
             {log.data?.log.map((l) => (
               <li key={l.id} className="py-3">
-                <p className="flex flex-wrap items-center gap-x-2 text-sm">
-                  <span className={`font-bold ${l.status === 'sent' ? 'text-ok' : 'text-accent'}`}>{l.status === 'sent' ? 'Enviada' : 'Falhou'}</span>
-                  <span>{EVENT[l.event] || l.event}</span>
-                  <span className="text-muted">· +{l.to} · {fmtDateTime(l.createdAt)}</span>
+                <div className="flex items-center gap-2">
+                  <span className="min-w-0 flex-1 truncate text-subhead font-semibold">{EVENT[l.event] || l.event}</span>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-caption font-semibold ${l.status === 'sent' ? 'bg-okbg text-ok' : 'bg-dangerbg text-danger'}`}>
+                    {l.status === 'sent' ? 'Enviada' : 'Falhou'}
+                  </span>
+                </div>
+                <p className="mt-0.5 text-footnote text-muted">
+                  +{l.to} · {fmtDateTime(l.createdAt)}
                 </p>
-                <p className="mt-1 line-clamp-2 break-all text-sm text-muted">{l.text}</p>
-                {l.error && <p className="mt-1 break-all text-sm text-accent">{l.error}</p>}
+                <p className="mt-1 line-clamp-2 break-all text-footnote text-muted">{l.text}</p>
+                {l.error && <p className="mt-1 break-all text-footnote text-danger">{l.error}</p>}
               </li>
             ))}
           </ul>
@@ -408,7 +411,7 @@ export default function Settings() {
       </section>
 
       <button onClick={signOut} className="list cell mt-6 justify-center text-body text-danger active:bg-surface2">
-        <LogOut size={22} /> Sair
+        <LogOut size={20} /> Sair
       </button>
     </div>
   );

@@ -60,7 +60,7 @@ export default function Team() {
               setM({ ...emptyMember });
             }}
           >
-            <UserPlus size={20} /> <span className="hidden min-[380px]:inline">Pessoa</span>
+            <UserPlus size={20} /> Pessoa
           </button>
         }
       />
@@ -77,9 +77,9 @@ export default function Team() {
             <Avatar name={u.name} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-body font-semibold">{u.name}</p>
-              <p className="truncate text-sm text-muted">{u.email}</p>
-              <p className="text-sm">
-                <span className={u.role === 'admin' ? 'font-bold text-accent' : 'text-soft'}>{u.role === 'admin' ? 'Dono' : 'Operador'}</span>
+              <p className="truncate text-footnote text-muted">{u.email}</p>
+              <p className="text-subhead">
+                <span className={u.role === 'admin' ? 'font-semibold text-accent' : 'text-soft'}>{u.role === 'admin' ? 'Dono' : 'Operador'}</span>
                 <span className="text-muted"> · comissão {u.commissionPct}%{u.active ? '' : ' · sem acesso'}</span>
               </p>
             </div>
@@ -97,7 +97,7 @@ export default function Team() {
           {data.boxes.map((b) => (
             <div key={b.id} className={`card flex items-center gap-3 p-4 ${b.active ? '' : 'opacity-60'}`}>
               <Warehouse className="shrink-0 text-accent" />
-              <p className="min-w-0 flex-1 truncate font-bold">{b.name}</p>
+              <p className="min-w-0 flex-1 truncate font-semibold">{b.name}</p>
               <Switch label={`${b.name} ativo`} checked={b.active} onChange={(v) => boxAction(() => api.put(`/admin/boxes/${b.id}`, { name: b.name, active: v }), v ? 'Box ativado' : 'Box desativado')} />
               <button className="icon-btn h-11 w-11 border-transparent" aria-label={`Excluir ${b.name}`} onClick={() => confirm(`Excluir ${b.name}?`) && boxAction(() => api.del(`/admin/boxes/${b.id}`), 'Box excluído')}>
                 <Trash2 size={18} />
@@ -117,7 +117,7 @@ export default function Team() {
               }, 'Box adicionado')
             }
           >
-            <Plus size={20} /> <span className="hidden min-[380px]:inline">Adicionar</span>
+            <Plus size={20} /> Adicionar
           </button>
         </div>
       </section>
@@ -132,7 +132,7 @@ export default function Team() {
               <input className="input" type="email" autoComplete="off" value={m.email} onChange={(e) => setM({ ...m, email: e.target.value })} />
             </Field>
             <Field label="Celular">
-              <input className="input" type="tel" value={m.phone} onChange={(e) => setM({ ...m, phone: maskPhone(e.target.value) })} />
+              <input className="input" type="tel" inputMode="tel" autoComplete="off" value={m.phone} onChange={(e) => setM({ ...m, phone: maskPhone(e.target.value) })} />
             </Field>
             <div>
               <span className="label">Papel</span>
@@ -142,8 +142,8 @@ export default function Team() {
                   ['admin', 'Dono', 'Tudo, inclusive financeiro'],
                 ].map(([k, v, h]) => (
                   <button key={k} type="button" onClick={() => setM({ ...m, role: k })} className={`rounded-cell bg-surface p-3 text-left ring-2 transition-[box-shadow] duration-200 ${m.role === k ? 'ring-accent' : 'ring-transparent'}`}>
-                    <span className="block font-bold">{v}</span>
-                    <span className="block text-sm text-muted">{h}</span>
+                    <span className="block font-semibold">{v}</span>
+                    <span className="block text-footnote text-muted">{h}</span>
                   </button>
                 ))}
               </div>

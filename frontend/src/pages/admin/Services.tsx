@@ -83,7 +83,7 @@ export default function Services() {
         subtitle="Um preço por porte. Sem preço = o serviço não aparece para aquele porte."
         action={
           <button className="btn-pill" aria-label="Novo serviço" onClick={() => edit()}>
-            <Plus size={22} /> <span className="hidden min-[380px]:inline">Novo</span>
+            <Plus size={22} /> Novo
           </button>
         }
       />
@@ -98,7 +98,7 @@ export default function Services() {
                 <div className="flex items-center gap-3 p-4 pb-3">
                   <ServiceIcon icon={s.icon} active={s.active} size="sm" />
                   <button className="min-w-0 flex-1 text-left" onClick={() => edit(s)}>
-                    <p className="truncate text-body font-semibold">{s.name}</p>
+                    <p className="line-clamp-2 text-body font-semibold leading-snug">{s.name}</p>
                     <p className="flex items-center gap-1 text-footnote text-muted">
                       <Clock size={13} /> {duration(s.durationMin)} <span className="text-accent">· Editar</span>
                     </p>

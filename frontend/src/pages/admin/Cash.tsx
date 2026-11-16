@@ -86,7 +86,7 @@ export default function Cash() {
               setOpen(true);
             }}
           >
-            <Plus size={22} /> <span className="hidden min-[380px]:inline">Lançar</span>
+            <Plus size={22} /> Lançar
           </button>
         }
       />
@@ -130,7 +130,7 @@ export default function Cash() {
                 {data.summary.byCategory.map((c) => (
                   <div key={`${c.type}:${c.category}`} className="flex items-center justify-between gap-3 rounded-cell bg-bg px-4 py-3">
                     <span className="min-w-0 truncate">{c.category}</span>
-                    <span className={`shrink-0 font-bold ${c.type === 'income' ? 'text-ok' : 'text-danger'}`}>
+                    <span className={`shrink-0 font-semibold ${c.type === 'income' ? 'text-ok' : 'text-danger'}`}>
                       {c.type === 'income' ? '+' : '−'} {brl(c.totalCents)}
                     </span>
                   </div>
@@ -145,7 +145,7 @@ export default function Cash() {
             <div className="card divide-y divide-line">
               {data.entries.map((e) => (
                 <div key={e.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
-                  {e.type === 'income' ? <ArrowUpCircle className="shrink-0 text-ok" size={22} strokeWidth={1.75} /> : <ArrowDownCircle className="shrink-0 text-danger" size={22} strokeWidth={1.75} />}
+                  {e.type === 'income' ? <ArrowUpCircle className="hidden shrink-0 text-ok min-[380px]:block" size={22} strokeWidth={1.75} /> : <ArrowDownCircle className="hidden shrink-0 text-danger min-[380px]:block" size={22} strokeWidth={1.75} />}
                   <div className="min-w-0 flex-1">
                     <p className="line-clamp-2 break-words text-body font-medium">{e.description || e.category}</p>
                     <p className="text-footnote text-muted">

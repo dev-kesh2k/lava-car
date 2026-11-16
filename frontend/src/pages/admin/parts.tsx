@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Camera, ChevronLeft, ChevronRight, Gift, MessageCircle, MoreHorizontal, Phone, Plus, Search, Trash2, Wallet } from 'lucide-react';
 import { api, fetchImageUrl, useApi, type Box, type Loyalty, type Order, type Service, type Size, type Slot, type Vehicle } from '../../api';
 import { useAuth } from '../../auth';
 import { isValidPhone, maskPhone } from '../../client';
 import { useConfig } from '../../config';
 import { WhatsAppLogo } from '../../brand-icons';
-import { ActionSheet, Checkbox, Empty, FormError, Field, Loading, Plate, Sheet, SizePicker, StatusPill, toast, type SheetAction } from '../../ui';
+import { ActionSheet, Checkbox, InfoRow, Empty, FormError, Field, Loading, Plate, Sheet, SizePicker, StatusPill, toast, type SheetAction } from '../../ui';
 import {
   brl,
   duration,
@@ -249,7 +249,7 @@ function Inspection({ o, initial, onChanged }: { o: Order; initial: { damages: D
           {damages.map((d, i) => (
             <div key={i} className="card grid grid-cols-2 gap-2 p-3">
               <div className="col-span-2 -mt-1 flex items-center gap-2">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-warnbg text-caption font-bold text-warn">{i + 1}</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-warnbg text-caption font-semibold text-warn">{i + 1}</span>
                 <span className="min-w-0 flex-1 text-subhead font-semibold">Avaria {i + 1}</span>
                 <button className="-mr-2 flex h-10 w-10 shrink-0 items-center justify-center text-danger active:opacity-50" aria-label="Remover avaria" onClick={() => setDamages(damages.filter((_, j) => j !== i))}>
                   <Trash2 size={19} strokeWidth={1.75} />
@@ -285,16 +285,6 @@ function Inspection({ o, initial, onChanged }: { o: Order; initial: { damages: D
           Salvar vistoria
         </button>
       </section>
-    </div>
-  );
-}
-
-/** Linha de lista no padrão do iOS: rótulo cinza à esquerda e valor à direita (quebra em até 2 linhas). */
-function InfoRow({ label, children, strong }: { label: string; children: ReactNode; strong?: boolean }) {
-  return (
-    <div className="cell items-start justify-between gap-4">
-      <span className={`shrink-0 ${strong ? 'font-semibold text-ink' : 'text-muted'}`}>{label}</span>
-      <span className={`line-clamp-2 min-w-0 flex-1 break-words text-right ${strong ? 'font-semibold' : ''}`}>{children}</span>
     </div>
   );
 }
@@ -737,7 +727,7 @@ export function NewOrderSheet({ open, onClose, onCreated, scheduleDefault }: { o
                 }}
               >
                 <Plate plate={v.plate} size="sm" />
-                <span className="min-w-0 flex-1 truncate text-sm">
+                <span className="min-w-0 flex-1 truncate text-subhead">
                   {v.model || 'Carro'} · {v.clientName || v.phone || 'avulso'}
                 </span>
               </button>
