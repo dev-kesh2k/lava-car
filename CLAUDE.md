@@ -45,3 +45,11 @@ Modelar o banco inteiro antes da interface (`supabase/migrations`).
 | 3º | "Desenvolva a Fase 2 (Módulo do Cliente), começando pelo cadastro de veículos e pelo algoritmo de verificação de horários disponíveis (evitando conflito de agendamentos baseado na capacidade de boxes simultâneos da loja)." |
 | 4º | "Desenvolva a Fase 3 (Painel Operacional). Crie o quadro Kanban do pátio usando Supabase Realtime para que mudanças de status reflitam instantaneamente na tela do cliente, além do formulário de vistoria com upload de fotos para o Supabase Storage." |
 | 5º | "Desenvolva a Fase 4 (Financeiro e Comissões) e configure o manifest.json e service worker para transformar a aplicação em um PWA instalável." |
+
+## Onde fica cada coisa
+- `supabase/migrations/*.sql` — schema em ordem (tipos → tabelas → RLS → regras → relatórios → storage → realtime). Nunca editar migração já aplicada: crie outra.
+- `supabase/functions/` — Edge Functions (Deno): `create-pix`, `mp-webhook`, `notify-status`.
+- `src/lib/` — regras puras e testadas (disponibilidade, preços, fuso, placa, telefone, fidelidade, comissões, caixa).
+- `src/api/` — acesso ao Supabase (uma função por operação).
+- `src/features/<área>/` — telas: `auth`, `garage`, `booking`, `tracker`, `loyalty`, `customer`, `yard`, `admin`.
+- Regras que valem dinheiro ou vaga (preço, capacidade, comissão, caixa) ficam **no banco** (`book_appointment`, `open_walk_in`, triggers); o frontend só repete a conta para mostrar.
