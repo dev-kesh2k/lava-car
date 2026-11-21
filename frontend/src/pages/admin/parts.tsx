@@ -232,7 +232,7 @@ function Inspection({ o, initial, onChanged }: { o: Order; initial: { damages: D
                 capture="environment"
                 className="sr-only"
                 onChange={(e) => {
-                  addPhoto(e.target.files?.[0]);
+                  void addPhoto(e.target.files?.[0]);
                   e.target.value = '';
                 }}
               />

@@ -14,7 +14,7 @@ interface Link {
 
 /** Redes da loja cadastradas em Configurações (Instagram e TikTok pelo @; os outros por link). */
 export function socialLinks(c: Config): Link[] {
-  const at = (v: string) => v.replace(/^@/, '').replace(/^https?:\/\/(www\.)?(instagram|tiktok)\.com\/@?/i, '').replace(/\/.*$/, '');
+  const at = (v: string) => v.replace(/^@/, '').replace(/^https?:\/\/(www\.)?(instagram|tiktok)\.com\/@?/i, '').split('/')[0];
   const list: Link[] = [];
   if (c.instagram) list.push({ key: 'ig', label: 'Instagram', handle: `@${at(c.instagram)}`, href: `https://instagram.com/${at(c.instagram)}`, icon: InstagramLogo });
   if (c.tiktok) list.push({ key: 'tt', label: 'TikTok', handle: `@${at(c.tiktok)}`, href: `https://www.tiktok.com/@${at(c.tiktok)}`, icon: Music2 });
