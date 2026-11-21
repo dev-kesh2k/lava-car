@@ -62,21 +62,21 @@ function DayBars({ days, today }: { days: Dash['days']; today: string }) {
       </div>
       <div className="flex h-[140px] items-end gap-[2px] hairline-b" role="list" aria-label="Faturamento por dia">
         {days.map((d, i) => (
-          <button
-            key={d.day}
-            type="button"
-            role="listitem"
-            aria-label={`${fmtDate(d.day)}: ${brl(d.revenueCents)}`}
-            onMouseEnter={() => setHover(i)}
-            onMouseLeave={() => setHover(null)}
-            onClick={() => setHover(i)}
-            className="relative block h-full min-w-0 flex-1"
-          >
-            <span
-              className={`absolute inset-x-0 bottom-0 mx-auto max-w-[28px] rounded-t-[4px] transition-colors duration-200 ${d.day === today ? 'bg-brand' : hover === i ? 'bg-accent/60' : 'bg-accent/25'}`}
-              style={{ height: d.revenueCents ? Math.max(3, Math.round((d.revenueCents / max) * 130)) : 0 }}
-            />
-          </button>
+          <div key={d.day} role="listitem" className="h-full min-w-0 flex-1">
+            <button
+              type="button"
+              aria-label={`${fmtDate(d.day)}: ${brl(d.revenueCents)}`}
+              onMouseEnter={() => setHover(i)}
+              onMouseLeave={() => setHover(null)}
+              onClick={() => setHover(i)}
+              className="relative block h-full w-full"
+            >
+              <span
+                className={`absolute inset-x-0 bottom-0 mx-auto max-w-[28px] rounded-t-[4px] transition-colors duration-200 ${d.day === today ? 'bg-brand' : hover === i ? 'bg-accent/60' : 'bg-accent/25'}`}
+                style={{ height: d.revenueCents ? Math.max(3, Math.round((d.revenueCents / max) * 130)) : 0 }}
+              />
+            </button>
+          </div>
         ))}
       </div>
       {days.length > 0 && (
