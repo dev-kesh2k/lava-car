@@ -1,10 +1,10 @@
 // Avisos automáticos pelo WhatsApp usando a ponte do servidor (WAHA + bridge FastAPI do Hub).
 // O app só fala com a ponte: POST ${WHATSAPP_BRIDGE_URL}/send/text com o header X-Bridge-Secret.
 // Sem WHATSAPP_BRIDGE_URL/BRIDGE_SECRET no ambiente, nada é enviado (o botão wa.me continua funcionando).
-import { prisma, getSettings, todayStr, nowTime, addDays, phoneKey, brl, shortDate } from './util.js';
+import { prisma, getSettings, todayStr, nowTime, addDays, phoneKey, brl, shortDate, trimTrailingSlashes } from './util.js';
 import { formatPlate, readyMessage } from './rules.js';
 
-const BRIDGE_URL = () => String(process.env.WHATSAPP_BRIDGE_URL || '').replace(/\/+$/, '');
+const BRIDGE_URL = () => trimTrailingSlashes(String(process.env.WHATSAPP_BRIDGE_URL || ''));
 const BRIDGE_SECRET = () => String(process.env.BRIDGE_SECRET || '');
 const TIMEOUT = 10_000;
 
@@ -117,7 +117,7 @@ export async function sendWhatsApp(toRaw, text, event, settings, { force = false
 const first = (name) => (name || '').trim().split(/\s+/)[0] || '';
 const hello = (o) => (first(o.clientName) && !/^Cliente /.test(o.clientName) ? `Olá, ${first(o.clientName)}!` : 'Olá!');
 const when = (o) => `${shortDate(o.date)} às ${o.time}`;
-const link = (s, o, extra = '') => (s.appUrl ? `\n${s.appUrl.replace(/\/+$/, '')}/agenda/${o.id}${extra}` : '');
+const link = (s, o, extra = '') => (s.appUrl ? `\n${trimTrailingSlashes(s.appUrl)}/agenda/${o.id}${extra}` : '');
 const car = (o) => `${o.model || 'carro'} placa ${formatPlate(o.plate)}`;
 const services = (o) => (o.items || []).map((i) => i.name).join(' + ');
 

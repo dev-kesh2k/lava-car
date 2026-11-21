@@ -175,7 +175,22 @@ export function recordFailure(key) {
 export const clearFailures = (key) => attempts.delete(key);
 
 // ---------- Validação ----------
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Mesmo critério da antiga regex /^[^\s@]+@[^\s@]+\.[^\s@]+$/, sem retrocesso: um só @, sem espaços e um ponto no meio do domínio. */
+function isEmail(s) {
+  if (/\s/.test(s)) return false;
+  const at = s.indexOf('@');
+  if (at < 1 || at !== s.lastIndexOf('@')) return false;
+  const domain = s.slice(at + 1);
+  const dot = domain.indexOf('.', 1);
+  return dot !== -1 && dot < domain.length - 1;
+}
+
+/** Tira as barras do fim (substitui .replace(/\/+$/, ''), que tem retrocesso). */
+export function trimTrailingSlashes(s) {
+  let end = s.length;
+  while (end > 0 && s[end - 1] === '/') end--;
+  return s.slice(0, end);
+}
 
 export function text(v, field, { max = 200, required = false } = {}) {
   const s = typeof v === 'string' ? v.trim() : '';
@@ -186,7 +201,7 @@ export function text(v, field, { max = 200, required = false } = {}) {
 
 export function email(v, { required = true } = {}) {
   const s = text(v, 'E-mail', { max: 160, required }).toLowerCase();
-  if (s && !EMAIL_RE.test(s)) throw new HttpError(400, 'E-mail inválido');
+  if (s && !isEmail(s)) throw new HttpError(400, 'E-mail inválido');
   return s;
 }
 

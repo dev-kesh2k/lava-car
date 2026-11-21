@@ -1,6 +1,6 @@
 import express from 'express';
 import { api } from './routes.js';
-import { HttpError } from './util.js';
+import { HttpError, trimTrailingSlashes } from './util.js';
 import { startReminderLoop } from './whatsapp.js';
 
 const app = express();
@@ -10,7 +10,7 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '4mb' }));
 
 // O proxy pode repassar /api/..., o caminho completo /<slug>/api/... ou já sem o prefixo.
-const publicPath = String(process.env.PUBLIC_PATH || '').replace(/\/+$/, '');
+const publicPath = trimTrailingSlashes(String(process.env.PUBLIC_PATH || ''));
 app.get(['/health', `${publicPath}/health`], (_req, res) => res.json({ ok: true }));
 if (publicPath) app.use(`${publicPath}/api`, api);
 app.use('/api', api);
